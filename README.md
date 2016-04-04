@@ -11,9 +11,13 @@ A code searching tool similar to `ack`, with a focus on speed.
 How much faster is it? 
 
 For simple short literal searches, expect 1.3-1.5x performance
+
 For regular expressions, you can expect 2-5x in many cases, with some results over 100x
 
-Prebuilt OSX binary included. (called jag)
+Note that this code will currently compile, *but will not link* due to dependence on libJavelinPattern which I am
+currently in the process of trying to release.
+
+A prebuilt OSX binary included so that the performance claims can be tested. (called jag)
 
 The remainder of README is from the original ag branch
 
