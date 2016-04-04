@@ -34,19 +34,8 @@
 extern size_t alpha_skip_lookup[256];
 extern size_t *find_skip_lookup;
 
-struct work_queue_t {
-    char *path;
-    struct work_queue_t *next;
-};
-typedef struct work_queue_t work_queue_t;
-
-extern work_queue_t *work_queue;
-extern work_queue_t *work_queue_tail;
-extern int done_adding_files;
-extern pthread_cond_t files_ready;
 extern pthread_mutex_t print_mtx;
 extern pthread_mutex_t stats_mtx;
-extern pthread_mutex_t work_queue_mtx;
 
 
 /* For symlink loop detection */
@@ -70,8 +59,6 @@ void search_buf(const char *buf, const size_t buf_len,
                 const char *dir_full_path);
 void search_stream(FILE *stream, const char *path);
 void search_file(const char *file_full_path);
-
-void *search_file_worker(void *i);
 
 void search_dir(ignores *ig, const char *base_path, const char *path, const int depth, dev_t original_dev);
 

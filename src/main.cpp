@@ -43,8 +43,6 @@ int main(int argc, char **argv) {
 
     set_log_level(LOG_LEVEL_WARN);
 
-    work_queue = NULL;
-    work_queue_tail = NULL;
     root_ignores = init_ignore(NULL, "", 0);
     out_fd = stdout;
 
@@ -63,40 +61,10 @@ int main(int argc, char **argv) {
 //    }
 //#endif
 
-#ifdef _WIN32
-    {
-        SYSTEM_INFO si;
-        GetSystemInfo(&si);
-        num_cores = si.dwNumberOfProcessors;
-    }
-#else
-    num_cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
-#endif
-
-    workers_len = num_cores;
-    if (opts.literal) {
-        workers_len--;
-    }
-    if (opts.workers) {
-        workers_len = opts.workers;
-    }
-    if (workers_len < 1) {
-        workers_len = 1;
-    }
-
-    log_debug("Using %i workers", workers_len);
-    done_adding_files = FALSE;
-    workers = (worker_t*) ag_calloc(workers_len, sizeof(worker_t));
-    if (pthread_cond_init(&files_ready, NULL)) {
-        die("pthread_cond_init failed!");
-    }
     if (pthread_mutex_init(&print_mtx, NULL)) {
         die("pthread_mutex_init failed!");
     }
     if (opts.stats && pthread_mutex_init(&stats_mtx, NULL)) {
-        die("pthread_mutex_init failed!");
-    }
-    if (pthread_mutex_init(&work_queue_mtx, NULL)) {
         die("pthread_mutex_init failed!");
     }
 
@@ -137,32 +105,6 @@ int main(int argc, char **argv) {
     if (opts.search_stream) {
         search_stream(stdin, "");
     } else {
-        for (i = 0; i < workers_len; i++) {
-            workers[i].id = i;
-            int rv = pthread_create(&(workers[i].thread), NULL, &search_file_worker, &(workers[i].id));
-            if (rv != 0) {
-                die("Error in pthread_create(): %s", strerror(rv));
-            }
-#if defined(HAVE_PTHREAD_SETAFFINITY_NP) && defined(USE_CPU_SET)
-            if (opts.use_thread_affinity) {
-                cpu_set_t cpu_set;
-                CPU_ZERO(&cpu_set);
-                CPU_SET(i % num_cores, &cpu_set);
-                rv = pthread_setaffinity_np(workers[i].thread, sizeof(cpu_set), &cpu_set);
-                if (rv) {
-                    log_err("Error in pthread_setaffinity_np(): %s", strerror(rv));
-                    log_err("Performance may be affected. Use --noaffinity to suppress this message.");
-                } else {
-                    log_debug("Thread %i set to CPU %i", i, i);
-                }
-            } else {
-                log_debug("Thread affinity disabled.");
-            }
-#else
-            log_debug("No CPU affinity support.");
-#endif
-        }
-
 #ifdef HAVE_PLEDGE
         if (pledge("stdio rpath", NULL) == -1) {
             die("pledge: %s", strerror(errno));
@@ -184,15 +126,8 @@ int main(int argc, char **argv) {
             search_dir(ig, base_paths[i], paths[i], 0, s.st_dev);
             cleanup_ignore(ig);
         }
-        pthread_mutex_lock(&work_queue_mtx);
-        done_adding_files = TRUE;
-        pthread_cond_broadcast(&files_ready);
-        pthread_mutex_unlock(&work_queue_mtx);
-        for (i = 0; i < workers_len; i++) {
-            if (pthread_join(workers[i].thread, NULL)) {
-                die("pthread_join failed!");
-            }
-        }
+		
+		Javelin::ThreadPool::GetSharedThreadPool().WaitForAllTasksToComplete();
     }
 
     if (opts.stats) {
@@ -209,8 +144,6 @@ int main(int argc, char **argv) {
         pclose(out_fd);
     }
     cleanup_options();
-    pthread_cond_destroy(&files_ready);
-    pthread_mutex_destroy(&work_queue_mtx);
     pthread_mutex_destroy(&print_mtx);
     cleanup_ignore(root_ignores);
     free(workers);

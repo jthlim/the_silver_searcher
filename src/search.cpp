@@ -4,13 +4,8 @@
 size_t alpha_skip_lookup[256];
 size_t *find_skip_lookup;
 
-work_queue_t *work_queue;
-work_queue_t *work_queue_tail;
-int done_adding_files;
-pthread_cond_t files_ready;
 pthread_mutex_t print_mtx;
 pthread_mutex_t stats_mtx;
-pthread_mutex_t work_queue_mtx;
 
 symdir_t *symhash;
 
@@ -346,33 +341,20 @@ cleanup:
     }
 }
 
-void *search_file_worker(void *i) {
-    work_queue_t *queue_item;
-    int worker_id = *(int *)i;
-
-    log_debug("Worker %i started", worker_id);
-    while (TRUE) {
-        pthread_mutex_lock(&work_queue_mtx);
-        while (work_queue == NULL) {
-            if (done_adding_files) {
-                pthread_mutex_unlock(&work_queue_mtx);
-                log_debug("Worker %i finished.", worker_id);
-                pthread_exit(NULL);
-            }
-            pthread_cond_wait(&files_ready, &work_queue_mtx);
-        }
-        queue_item = work_queue;
-        work_queue = work_queue->next;
-        if (work_queue == NULL) {
-            work_queue_tail = NULL;
-        }
-        pthread_mutex_unlock(&work_queue_mtx);
-
-        search_file(queue_item->path);
-        free(queue_item->path);
-        free(queue_item);
-    }
-}
+class SearchFileTask : public Javelin::Task
+{
+public:
+	SearchFileTask(const char* aPath) : path(aPath) { }
+	~SearchFileTask() { delete path; }
+	
+private:
+	virtual void RunTask() override
+	{
+		search_file(path);
+	}
+	
+	const char* path;
+};
 
 static int check_symloop_enter(const char *path, dirkey_t *outkey) {
 #ifdef _WIN32
@@ -497,10 +479,7 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
 			goto search_dir_cleanup;
 		}
 
-		work_queue_t *queue_item;
-
 		for (i = 0; i < results; i++) {
-			queue_item = NULL;
 			dir = dir_list[i];
 			ag_asprintf(&dir_full_path, "%s/%s", path, dir->d_name);
 	#ifndef _WIN32
@@ -538,19 +517,9 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
 					}
 				}
 
-				queue_item = (work_queue_t*) ag_malloc(sizeof(work_queue_t));
-				queue_item->path = dir_full_path;
-				queue_item->next = NULL;
-				pthread_mutex_lock(&work_queue_mtx);
-				if (work_queue_tail == NULL) {
-					work_queue = queue_item;
-				} else {
-					work_queue_tail->next = queue_item;
-				}
-				work_queue_tail = queue_item;
-				pthread_cond_signal(&files_ready);
-				pthread_mutex_unlock(&work_queue_mtx);
-				log_debug("%s added to work queue", dir_full_path);
+				log_debug("%s adding to work queue", dir_full_path);
+				Javelin::ThreadPool::GetSharedThreadPool().AddTask(new SearchFileTask(dir_full_path));
+				dir_full_path = NULL;
 			} else if (opts.recurse_dirs) {
 				if (depth < opts.max_search_depth || opts.max_search_depth == -1) {
 					log_debug("Searching dir %s", dir_full_path);
@@ -580,10 +549,8 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
 		cleanup:
 			free(dir);
 			dir = NULL;
-			if (queue_item == NULL) {
-				free(dir_full_path);
-				dir_full_path = NULL;
-			}
+			free(dir_full_path);
+			dir_full_path = NULL;
 		}
 	}
 	

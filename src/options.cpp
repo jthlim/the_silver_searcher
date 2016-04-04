@@ -283,7 +283,6 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         { "vimgrep", no_argument, &opts.vimgrep, 1 },
         { "width", required_argument, NULL, 'W' },
         { "word-regexp", no_argument, NULL, 'w' },
-        { "workers", required_argument, NULL, 0 },
     };
 
     lang_count = get_lang_count();
@@ -498,9 +497,6 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                     break;
                 } else if (strcmp(longopts[opt_index].name, "pager") == 0) {
                     opts.pager = optarg;
-                    break;
-                } else if (strcmp(longopts[opt_index].name, "workers") == 0) {
-                    opts.workers = atoi(optarg);
                     break;
                 } else if (strcmp(longopts[opt_index].name, "color-line-number") == 0) {
                     free(opts.color_line_number);
