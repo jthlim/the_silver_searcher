@@ -271,20 +271,19 @@ void realloc_matches(match_t **matches, size_t *matches_size, size_t matches_len
     *matches = (match_t*) ag_realloc(*matches, *matches_size * sizeof(match_t));
 }
 
-void compile_study(pcre **re, pcre_extra **re_extra, char *q, const int pcre_opts, const int study_opts) {
-    const char *pcre_err = NULL;
-    int pcre_err_offset = 0;
-
-    *re = pcre_compile(q, pcre_opts, &pcre_err, &pcre_err_offset, NULL);
-    if (*re == NULL) {
-        die("Bad regex! pcre_compile() failed at position %i: %s\nIf you meant to search for a literal string, run ag with -Q",
-            pcre_err_offset,
-            pcre_err);
-    }
-    *re_extra = pcre_study(*re, study_opts, &pcre_err);
-    if (*re_extra == NULL) {
-        log_debug("pcre_study returned nothing useful. Error: %s", pcre_err);
-    }
+void compile_study(Javelin::Pattern **re, char *q, const int pcre_opts, const int study_opts) {
+	int options = 0;
+	if(pcre_opts & PCRE_CASELESS) options |= Javelin::Pattern::IGNORE_CASE;
+	if(pcre_opts & PCRE_DOTALL) options |= Javelin::Pattern::DOTALL;
+	if(pcre_opts & PCRE_MULTILINE) options |= Javelin::Pattern::MULTILINE;
+	
+	try {
+		Javelin::String s{q};
+		*re = new Javelin::Pattern(s, options);
+	}
+	catch(const Javelin::Exception& exception) {
+		die("Bad regex! Javelin::Pattern failed\nIf you meant to search for a literal string, run ag with -Q");
+	}
 }
 
 /* This function is very hot. It's called on every file. */

@@ -49,19 +49,19 @@ int main(int argc, char **argv) {
     out_fd = stdout;
 
     parse_options(argc, argv, &base_paths, &paths);
-    log_debug("PCRE Version: %s", pcre_version());
+    //log_debug("PCRE Version: %s", pcre_version());
     if (opts.stats) {
         memset(&stats, 0, sizeof(stats));
         gettimeofday(&(stats.time_start), NULL);
     }
 
-#ifdef USE_PCRE_JIT
-    int has_jit = 0;
-    pcre_config(PCRE_CONFIG_JIT, &has_jit);
-    if (has_jit) {
-        study_opts |= PCRE_STUDY_JIT_COMPILE;
-    }
-#endif
+//#ifdef USE_PCRE_JIT
+//    int has_jit = 0;
+//    pcre_config(PCRE_CONFIG_JIT, &has_jit);
+//    if (has_jit) {
+//        study_opts |= PCRE_STUDY_JIT_COMPILE;
+//    }
+//#endif
 
 #ifdef _WIN32
     {
@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
             opts.query = word_regexp_query;
             opts.query_len = strlen(opts.query);
         }
-        compile_study(&opts.re, &opts.re_extra, opts.query, pcre_opts, study_opts);
+        compile_study(&opts.pattern, opts.query, pcre_opts, study_opts);
     }
 
     if (opts.search_stream) {

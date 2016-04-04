@@ -100,10 +100,13 @@ void search_buf(const char *buf, const size_t buf_len,
             }
         }
     } else {
-        int offset_vector[3];
+		const void* results[opts.pattern->GetNumberOfCaptures()*2];
         if (opts.multiline) {
             while (buf_offset < buf_len &&
-                   (pcre_exec(opts.re, opts.re_extra, buf, buf_len, buf_offset, 0, offset_vector, 3)) >= 0) {
+				   opts.pattern->PartialMatch(buf, buf_len, results, buf_offset)) {
+				int offset_vector[2];
+				offset_vector[0] = int(intptr_t(results[0]) - intptr_t(buf));
+				offset_vector[1] = int(intptr_t(results[1]) - intptr_t(buf));
                 log_debug("Regex match found. File %s, offset %i bytes.", dir_full_path, offset_vector[0]);
                 buf_offset = offset_vector[1];
                 if (offset_vector[0] == offset_vector[1]) {
@@ -131,11 +134,12 @@ void search_buf(const char *buf, const size_t buf_len,
                 }
                 size_t line_offset = 0;
                 while (line_offset < line_len) {
-                    int rv = pcre_exec(opts.re, opts.re_extra, line, line_len, line_offset, 0, offset_vector, 3);
-                    if (rv < 0) {
-                        break;
-                    }
-                    size_t line_to_buf = buf_offset + line_offset;
+					if(!opts.pattern->PartialMatch(line, line_len, results, line_offset)) break;
+					int offset_vector[2];
+					offset_vector[0] = int(intptr_t(results[0]) - intptr_t(buf));
+					offset_vector[1] = int(intptr_t(results[1]) - intptr_t(buf));
+
+					size_t line_to_buf = buf_offset + line_offset;
                     log_debug("Regex match found. File %s, offset %i bytes.", dir_full_path, offset_vector[0]);
                     line_offset = offset_vector[1];
                     if (offset_vector[0] == offset_vector[1]) {
@@ -493,8 +497,6 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
 			goto search_dir_cleanup;
 		}
 
-		int offset_vector[3];
-		int rc = 0;
 		work_queue_t *queue_item;
 
 		for (i = 0; i < results; i++) {
@@ -522,18 +524,16 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
 			}
 
 			if (!is_directory(path, dir)) {
-				if (opts.file_search_regex) {
-					rc = pcre_exec(opts.file_search_regex, NULL, dir_full_path, strlen(dir_full_path),
-								   0, 0, offset_vector, 3);
-					if (rc < 0) { /* no match */
-						log_debug("Skipping %s due to file_search_regex.", dir_full_path);
-						goto cleanup;
-					} else if (opts.match_files) {
+				if(opts.file_search_pattern) {
+					if(opts.file_search_pattern->HasPartialMatch(dir_full_path, strlen(dir_full_path))) {
 						log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
 						pthread_mutex_lock(&print_mtx);
 						print_path(dir_full_path, opts.path_sep);
 						pthread_mutex_unlock(&print_mtx);
 						opts.match_found = 1;
+						goto cleanup;
+					} else {
+						log_debug("Skipping %s due to file_search_regex.", dir_full_path);
 						goto cleanup;
 					}
 				}
