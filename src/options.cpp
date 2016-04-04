@@ -728,10 +728,6 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         exit(1);
     }
 
-    if (!is_regex(opts.query)) {
-        opts.literal = 1;
-    }
-
     char *path = NULL;
 #ifdef PATH_MAX
     char *tmp = NULL;

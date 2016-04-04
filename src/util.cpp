@@ -341,26 +341,6 @@ int is_binary(const void *buf, const size_t buf_len) {
     return 0;
 }
 
-int is_regex(const char *query) {
-    char regex_chars[] = {
-        '$',
-        '(',
-        ')',
-        '*',
-        '+',
-        '.',
-        '?',
-        '[',
-        '\\',
-        '^',
-        '{',
-        '|',
-        '\0'
-    };
-
-    return (strpbrk(query, regex_chars) != NULL);
-}
-
 int is_fnmatch(const char *filename) {
     char fnmatch_chars[] = {
         '!',

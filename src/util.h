@@ -70,7 +70,6 @@ void compile_study(Javelin::Pattern **re, char *q, const int pcre_opts, const in
 
 
 int is_binary(const void *buf, const size_t buf_len);
-int is_regex(const char *query);
 int is_fnmatch(const char *filename);
 int binary_search(const char *needle, char **haystack, int start, int end);
 
