@@ -12,7 +12,7 @@
 #include "log.h"
 #include "options.h"
 
-FILE *out_fd;
+extern FILE *out_fd;
 
 #ifndef TRUE
 #define TRUE 1
@@ -43,7 +43,7 @@ typedef struct {
 } ag_stats;
 
 
-ag_stats stats;
+extern ag_stats stats;
 
 typedef const char *(*strncmp_fp)(const char *, const char *, const size_t, const size_t, const size_t[], const size_t *);
 

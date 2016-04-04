@@ -21,6 +21,8 @@ const int fnmatch_flags = FNM_PATHNAME;
 
 /* TODO: build a huge-ass list of files we want to ignore by default (build cache stuff, pyc files, etc) */
 
+ignores *root_ignores;
+
 const char *evil_hardcoded_ignore_files[] = {
     ".",
     "..",
@@ -42,7 +44,7 @@ int is_empty(ignores *ig) {
 };
 
 ignores *init_ignore(ignores *parent, const char *dirname, const size_t dirname_len) {
-    ignores *ig = ag_malloc(sizeof(ignores));
+    ignores *ig = (ignores*) ag_malloc(sizeof(ignores));
     ig->extensions = NULL;
     ig->extensions_len = 0;
     ig->names = NULL;
@@ -66,7 +68,7 @@ ignores *init_ignore(ignores *parent, const char *dirname, const size_t dirname_
         ag_asprintf(&(ig->abs_path), "%s/%s", parent->abs_path, dirname);
         ig->abs_path_len = parent->abs_path_len + 1 + dirname_len;
     } else if (dirname_len == 1 && dirname[0] == '.') {
-        ig->abs_path = ag_malloc(sizeof(char));
+        ig->abs_path = (char*) ag_malloc(sizeof(char));
         ig->abs_path[0] = '\0';
         ig->abs_path_len = 0;
     } else {
@@ -145,7 +147,7 @@ void add_ignore_pattern(ignores *ig, const char *pattern) {
     char **patterns;
 
     /* a balanced binary tree is best for performance, but I'm lazy */
-    *patterns_p = patterns = ag_realloc(*patterns_p, (*patterns_len) * sizeof(char *));
+    *patterns_p = patterns = (char**) ag_realloc(*patterns_p, (*patterns_len) * sizeof(char *));
     /* TODO: de-dupe these patterns */
     for (i = *patterns_len - 1; i > 0; i--) {
         if (strcmp(pattern, patterns[i - 1]) > 0) {
@@ -200,56 +202,58 @@ void load_svn_ignore_patterns(ignores *ig, const char *path) {
 
     char *entry = NULL;
     size_t entry_len = 0;
-    char *key = ag_malloc(32); /* Sane start for max key length. */
+    char *key = (char*) ag_malloc(32); /* Sane start for max key length. */
     size_t key_len = 0;
     size_t bytes_read = 0;
     char *entry_line;
     size_t line_len;
     int matches;
 
-    while (fscanf(fp, "K %zu\n", &key_len) == 1) {
-        key = ag_realloc(key, key_len + 1);
-        bytes_read = fread(key, 1, key_len, fp);
-        key[key_len] = '\0';
-        matches = fscanf(fp, "\nV %zu\n", &entry_len);
-        if (matches != 1) {
-            log_debug("Unable to parse svnignore file %s: fscanf() got %i matches, expected 1.", dir_prop_base, matches);
-            goto cleanup;
-        }
+	{
+		while (fscanf(fp, "K %zu\n", &key_len) == 1) {
+			key = (char*) ag_realloc(key, key_len + 1);
+			bytes_read = fread(key, 1, key_len, fp);
+			key[key_len] = '\0';
+			matches = fscanf(fp, "\nV %zu\n", &entry_len);
+			if (matches != 1) {
+				log_debug("Unable to parse svnignore file %s: fscanf() got %i matches, expected 1.", dir_prop_base, matches);
+				goto cleanup;
+			}
 
-        if (strncmp(SVN_PROP_IGNORE, key, bytes_read) != 0) {
-            log_debug("key is %s, not %s. skipping %u bytes", key, SVN_PROP_IGNORE, entry_len);
-            /* Not the key we care about. fseek and repeat */
-            fseek(fp, entry_len + 1, SEEK_CUR); /* +1 to account for newline. yes I know this is hacky */
-            continue;
-        }
-        /* Aww yeah. Time to ignore stuff */
-        entry = ag_malloc(entry_len + 1);
-        bytes_read = fread(entry, 1, entry_len, fp);
-        entry[bytes_read] = '\0';
-        log_debug("entry: %s", entry);
-        break;
-    }
-    if (entry == NULL) {
-        goto cleanup;
-    }
-    char *patterns = entry;
-    size_t patterns_len = strlen(patterns);
-    while (*patterns != '\0' && patterns < (entry + bytes_read)) {
-        for (line_len = 0; line_len < patterns_len; line_len++) {
-            if (patterns[line_len] == '\n') {
-                break;
-            }
-        }
-        if (line_len > 0) {
-            entry_line = ag_strndup(patterns, line_len);
-            add_ignore_pattern(ig, entry_line);
-            free(entry_line);
-        }
-        patterns += line_len + 1;
-        patterns_len -= line_len + 1;
-    }
-    free(entry);
+			if (strncmp(SVN_PROP_IGNORE, key, bytes_read) != 0) {
+				log_debug("key is %s, not %s. skipping %u bytes", key, SVN_PROP_IGNORE, entry_len);
+				/* Not the key we care about. fseek and repeat */
+				fseek(fp, entry_len + 1, SEEK_CUR); /* +1 to account for newline. yes I know this is hacky */
+				continue;
+			}
+			/* Aww yeah. Time to ignore stuff */
+			entry = (char*) ag_malloc(entry_len + 1);
+			bytes_read = fread(entry, 1, entry_len, fp);
+			entry[bytes_read] = '\0';
+			log_debug("entry: %s", entry);
+			break;
+		}
+		if (entry == NULL) {
+			goto cleanup;
+		}
+		char *patterns = entry;
+		size_t patterns_len = strlen(patterns);
+		while (*patterns != '\0' && patterns < (entry + bytes_read)) {
+			for (line_len = 0; line_len < patterns_len; line_len++) {
+				if (patterns[line_len] == '\n') {
+					break;
+				}
+			}
+			if (line_len > 0) {
+				entry_line = ag_strndup(patterns, line_len);
+				add_ignore_pattern(ig, entry_line);
+				free(entry_line);
+			}
+			patterns += line_len + 1;
+			patterns_len -= line_len + 1;
+		}
+		free(entry);
+	}
 cleanup:
     free(dir_prop_base);
     free(key);

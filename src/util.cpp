@@ -21,6 +21,9 @@
     }                                     \
     return ptr;
 
+FILE *out_fd;
+ag_stats stats;
+
 void *ag_malloc(size_t size) {
     void *ptr = malloc(size);
     CHECK_AND_RETURN(ptr)
@@ -122,7 +125,7 @@ size_t suffix_len(const char *s, const size_t s_len, const size_t pos, const int
 void generate_find_skip(const char *find, const size_t f_len, size_t **skip_lookup, const int case_sensitive) {
     size_t i;
     size_t s_len;
-    size_t *sl = ag_malloc(f_len * sizeof(size_t));
+    size_t *sl = (size_t*) ag_malloc(f_len * sizeof(size_t));
     *skip_lookup = sl;
     size_t last_prefix = f_len;
 
@@ -265,7 +268,7 @@ void realloc_matches(match_t **matches, size_t *matches_size, size_t matches_len
     }
     /* TODO: benchmark initial size of matches. 100 may be too small/big */
     *matches_size = *matches ? *matches_size * 2 : 100;
-    *matches = ag_realloc(*matches, *matches_size * sizeof(match_t));
+    *matches = (match_t*) ag_realloc(*matches, *matches_size * sizeof(match_t));
 }
 
 void compile_study(pcre **re, pcre_extra **re_extra, char *q, const int pcre_opts, const int study_opts) {
@@ -288,7 +291,7 @@ void compile_study(pcre **re, pcre_extra **re_extra, char *q, const int pcre_opt
 int is_binary(const void *buf, const size_t buf_len) {
     size_t suspicious_bytes = 0;
     size_t total_bytes = buf_len > 512 ? 512 : buf_len;
-    const unsigned char *buf_c = buf;
+    const unsigned char *buf_c = (const unsigned char*) buf;
     size_t i;
 
     if (buf_len == 0) {
@@ -300,7 +303,7 @@ int is_binary(const void *buf, const size_t buf_len) {
         return 0;
     }
 
-    if (buf_len >= 5 && strncmp(buf, "%PDF-", 5) == 0) {
+    if (buf_len >= 5 && strncmp((const char*) buf, "%PDF-", 5) == 0) {
         /* PDF. This is binary. */
         return 1;
     }

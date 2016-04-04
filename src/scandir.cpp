@@ -19,7 +19,7 @@ int ag_scandir(const char *dirname,
         goto fail;
     }
 
-    names = malloc(sizeof(struct dirent *) * names_len);
+    names = (struct dirent**) malloc(sizeof(struct dirent *) * names_len);
     if (names == NULL) {
         goto fail;
     }
@@ -31,7 +31,7 @@ int ag_scandir(const char *dirname,
         if (results_len >= names_len) {
             struct dirent **tmp_names = names;
             names_len *= 2;
-            names = realloc(names, sizeof(struct dirent *) * names_len);
+            names = (struct dirent**) realloc(names, sizeof(struct dirent *) * names_len);
             if (names == NULL) {
                 free(tmp_names);
                 goto fail;
@@ -39,9 +39,9 @@ int ag_scandir(const char *dirname,
         }
 
 #if defined(__MINGW32__) || defined(__CYGWIN__)
-        d = malloc(sizeof(struct dirent));
+        d = (struct dirent*) malloc(sizeof(struct dirent));
 #else
-        d = malloc(entry->d_reclen);
+        d = (struct dirent*) malloc(entry->d_reclen);
 #endif
 
         if (d == NULL) {

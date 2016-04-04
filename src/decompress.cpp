@@ -229,7 +229,7 @@ ag_compression_type is_zipped(const void *buf, const int buf_len) {
      * http://www.pkware.com/documents/casestudies/APPNOTE.TXT (Section 4.3)
      */
 
-    const unsigned char *buf_c = buf;
+    const unsigned char *buf_c = (const unsigned char*) buf;
 
     if (buf_len == 0)
         return AG_NO_COMPRESSION;

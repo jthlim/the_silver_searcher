@@ -16,6 +16,8 @@
 #include "util.h"
 #include "print.h"
 
+cli_options opts;
+
 const char *color_line_number = "\033[1;33m"; /* bold yellow */
 const char *color_match = "\033[30;43m";      /* black with yellow background */
 const char *color_path = "\033[1;32m";        /* bold green */
@@ -303,7 +305,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
     lang_count = get_lang_count();
     longopts_len = (sizeof(base_longopts) / sizeof(option_t));
     full_len = (longopts_len + lang_count + 1);
-    longopts = ag_malloc(full_len * sizeof(option_t));
+    longopts = (option_t*) ag_malloc(full_len * sizeof(option_t));
     memcpy(longopts, base_longopts, sizeof(base_longopts));
     ext_index = (size_t *)ag_malloc(sizeof(size_t) * lang_count);
     memset(ext_index, 0, sizeof(size_t) * lang_count);
@@ -661,7 +663,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
 #endif
         if (gitconfig_file != NULL) {
             do {
-                gitconfig_res = ag_realloc(gitconfig_res, buf_len + 65);
+                gitconfig_res = (char*) ag_realloc(gitconfig_res, buf_len + 65);
                 buf_len += fread(gitconfig_res + buf_len, 1, 64, gitconfig_file);
             } while (!feof(gitconfig_file) && buf_len > 0 && buf_len % 64 == 0);
             gitconfig_res[buf_len] = '\0';
@@ -756,8 +758,8 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
 #endif
     opts.paths_len = argc;
     if (argc > 0) {
-        *paths = ag_calloc(sizeof(char *), argc + 1);
-        *base_paths = ag_calloc(sizeof(char *), argc + 1);
+        *paths = (char**) ag_calloc(sizeof(char *), argc + 1);
+        *base_paths = (char**) ag_calloc(sizeof(char *), argc + 1);
         for (i = 0; i < (size_t)argc; i++) {
             path = ag_strdup(argv[i]);
             path_len = strlen(path);
@@ -767,7 +769,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
             }
             (*paths)[i] = path;
 #ifdef PATH_MAX
-            tmp = ag_malloc(PATH_MAX);
+            tmp = (char*) ag_malloc(PATH_MAX);
             (*base_paths)[i] = realpath(path, tmp);
 #else
             (*base_paths)[i] = realpath(path, NULL);
@@ -777,11 +779,11 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         opts.search_stream = 0;
     } else {
         path = ag_strdup(".");
-        *paths = ag_malloc(sizeof(char *) * 2);
-        *base_paths = ag_malloc(sizeof(char *) * 2);
+        *paths = (char**) ag_malloc(sizeof(char *) * 2);
+        *base_paths = (char**) ag_malloc(sizeof(char *) * 2);
         (*paths)[0] = path;
 #ifdef PATH_MAX
-        tmp = ag_malloc(PATH_MAX);
+        tmp = (char*) ag_malloc(PATH_MAX);
         (*base_paths)[0] = realpath(path, tmp);
 #else
         (*base_paths)[0] = realpath(path, NULL);

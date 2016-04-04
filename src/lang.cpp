@@ -111,7 +111,7 @@ size_t get_lang_count() {
 
 char *make_lang_regex(char *ext_array, size_t num_exts) {
     int regex_capacity = 100;
-    char *regex = ag_malloc(regex_capacity);
+    char *regex = (char*) ag_malloc(regex_capacity);
     int regex_length = 3;
     int subsequent = 0;
     char *extension;
@@ -124,7 +124,7 @@ char *make_lang_regex(char *ext_array, size_t num_exts) {
         int extension_length = strlen(extension);
         while (regex_length + extension_length + 3 + subsequent > regex_capacity) {
             regex_capacity *= 2;
-            regex = ag_realloc(regex, regex_capacity);
+            regex = (char*) ag_realloc(regex, regex_capacity);
         }
         if (subsequent) {
             regex[regex_length++] = '|';

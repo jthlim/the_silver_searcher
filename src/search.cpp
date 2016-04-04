@@ -1,6 +1,19 @@
 #include "search.h"
 #include "scandir.h"
 
+size_t alpha_skip_lookup[256];
+size_t *find_skip_lookup;
+
+work_queue_t *work_queue;
+work_queue_t *work_queue_tail;
+int done_adding_files;
+pthread_cond_t files_ready;
+pthread_mutex_t print_mtx;
+pthread_mutex_t stats_mtx;
+pthread_mutex_t work_queue_mtx;
+
+symdir_t *symhash;
+
 void search_buf(const char *buf, const size_t buf_len,
                 const char *dir_full_path) {
     int binary = -1; /* 1 = yes, 0 = no, -1 = don't know */
@@ -28,7 +41,7 @@ void search_buf(const char *buf, const size_t buf_len,
          * capacity for one extra.
          */
         matches_size = 100;
-        matches = ag_malloc(matches_size * sizeof(match_t));
+        matches = (match_t*) ag_malloc(matches_size * sizeof(match_t));
         matches_spare = 1;
     } else {
         matches_size = 0;
@@ -38,7 +51,7 @@ void search_buf(const char *buf, const size_t buf_len,
 
     if (!opts.literal && opts.query_len == 1 && opts.query[0] == '.') {
         matches_size = 1;
-        matches = ag_malloc(matches_size * sizeof(match_t));
+        matches = (match_t*) ag_malloc(matches_size * sizeof(match_t));
         matches[0].start = 0;
         matches[0].end = buf_len;
         matches_len = 1;
@@ -286,7 +299,7 @@ void search_file(const char *file_full_path) {
         goto cleanup;
     }
 #else
-    buf = mmap(0, f_len, PROT_READ, MAP_SHARED, fd, 0);
+    buf = (char*) mmap(0, f_len, PROT_READ, MAP_SHARED, fd, 0);
     if (buf == MAP_FAILED) {
         log_err("File %s failed to load: %s.", file_full_path, strerror(errno));
         goto cleanup;
@@ -302,7 +315,7 @@ void search_file(const char *file_full_path) {
         ag_compression_type zip_type = is_zipped(buf, f_len);
         if (zip_type != AG_NO_COMPRESSION) {
             int _buf_len = (int)f_len;
-            char *_buf = decompress(zip_type, buf, f_len, file_full_path, &_buf_len);
+            char *_buf = (char*) decompress(zip_type, buf, f_len, file_full_path, &_buf_len);
             if (_buf == NULL || _buf_len == 0) {
                 log_err("Cannot decompress zipped file %s", file_full_path);
                 goto cleanup;
@@ -456,122 +469,124 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
     scandir_baton.base_path = base_path;
     scandir_baton.base_path_len = base_path ? strlen(base_path) : 0;
     results = ag_scandir(path, &dir_list, &filename_filter, &scandir_baton);
-    if (results == 0) {
-        log_debug("No results found in directory %s", path);
-        goto search_dir_cleanup;
-    } else if (results == -1) {
-        if (errno == ENOTDIR) {
-            /* Not a directory. Probably a file. */
-            if (depth == 0 && opts.paths_len == 1) {
-                /* If we're only searching one file, don't print the filename header at the top. */
-                if (opts.print_path == PATH_PRINT_DEFAULT || opts.print_path == PATH_PRINT_DEFAULT_EACH_LINE) {
-                    opts.print_path = PATH_PRINT_NOTHING;
-                }
-                /* If we're only searching one file and --only-matching is specified, disable line numbers too. */
-                if (opts.only_matching && opts.print_path == PATH_PRINT_NOTHING) {
-                    opts.print_line_numbers = FALSE;
-                }
-            }
-            search_file(path);
-        } else {
-            log_err("Error opening directory %s: %s", path, strerror(errno));
-        }
-        goto search_dir_cleanup;
-    }
+	{
+		if (results == 0) {
+			log_debug("No results found in directory %s", path);
+			goto search_dir_cleanup;
+		} else if (results == -1) {
+			if (errno == ENOTDIR) {
+				/* Not a directory. Probably a file. */
+				if (depth == 0 && opts.paths_len == 1) {
+					/* If we're only searching one file, don't print the filename header at the top. */
+					if (opts.print_path == PATH_PRINT_DEFAULT || opts.print_path == PATH_PRINT_DEFAULT_EACH_LINE) {
+						opts.print_path = PATH_PRINT_NOTHING;
+					}
+					/* If we're only searching one file and --only-matching is specified, disable line numbers too. */
+					if (opts.only_matching && opts.print_path == PATH_PRINT_NOTHING) {
+						opts.print_line_numbers = FALSE;
+					}
+				}
+				search_file(path);
+			} else {
+				log_err("Error opening directory %s: %s", path, strerror(errno));
+			}
+			goto search_dir_cleanup;
+		}
 
-    int offset_vector[3];
-    int rc = 0;
-    work_queue_t *queue_item;
+		int offset_vector[3];
+		int rc = 0;
+		work_queue_t *queue_item;
 
-    for (i = 0; i < results; i++) {
-        queue_item = NULL;
-        dir = dir_list[i];
-        ag_asprintf(&dir_full_path, "%s/%s", path, dir->d_name);
-#ifndef _WIN32
-        if (opts.one_dev) {
-            struct stat s;
-            if (lstat(dir_full_path, &s) != 0) {
-                log_err("Failed to get device information for %s. Skipping...", dir->d_name);
-                goto cleanup;
-            }
-            if (s.st_dev != original_dev) {
-                log_debug("File %s crosses a device boundary (is probably a mount point.) Skipping...", dir->d_name);
-                goto cleanup;
-            }
-        }
-#endif
+		for (i = 0; i < results; i++) {
+			queue_item = NULL;
+			dir = dir_list[i];
+			ag_asprintf(&dir_full_path, "%s/%s", path, dir->d_name);
+	#ifndef _WIN32
+			if (opts.one_dev) {
+				struct stat s;
+				if (lstat(dir_full_path, &s) != 0) {
+					log_err("Failed to get device information for %s. Skipping...", dir->d_name);
+					goto cleanup;
+				}
+				if (s.st_dev != original_dev) {
+					log_debug("File %s crosses a device boundary (is probably a mount point.) Skipping...", dir->d_name);
+					goto cleanup;
+				}
+			}
+	#endif
 
-        /* If a link points to a directory then we need to treat it as a directory. */
-        if (!opts.follow_symlinks && is_symlink(path, dir)) {
-            log_debug("File %s ignored becaused it's a symlink", dir->d_name);
-            goto cleanup;
-        }
+			/* If a link points to a directory then we need to treat it as a directory. */
+			if (!opts.follow_symlinks && is_symlink(path, dir)) {
+				log_debug("File %s ignored becaused it's a symlink", dir->d_name);
+				goto cleanup;
+			}
 
-        if (!is_directory(path, dir)) {
-            if (opts.file_search_regex) {
-                rc = pcre_exec(opts.file_search_regex, NULL, dir_full_path, strlen(dir_full_path),
-                               0, 0, offset_vector, 3);
-                if (rc < 0) { /* no match */
-                    log_debug("Skipping %s due to file_search_regex.", dir_full_path);
-                    goto cleanup;
-                } else if (opts.match_files) {
-                    log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
-                    pthread_mutex_lock(&print_mtx);
-                    print_path(dir_full_path, opts.path_sep);
-                    pthread_mutex_unlock(&print_mtx);
-                    opts.match_found = 1;
-                    goto cleanup;
-                }
-            }
+			if (!is_directory(path, dir)) {
+				if (opts.file_search_regex) {
+					rc = pcre_exec(opts.file_search_regex, NULL, dir_full_path, strlen(dir_full_path),
+								   0, 0, offset_vector, 3);
+					if (rc < 0) { /* no match */
+						log_debug("Skipping %s due to file_search_regex.", dir_full_path);
+						goto cleanup;
+					} else if (opts.match_files) {
+						log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
+						pthread_mutex_lock(&print_mtx);
+						print_path(dir_full_path, opts.path_sep);
+						pthread_mutex_unlock(&print_mtx);
+						opts.match_found = 1;
+						goto cleanup;
+					}
+				}
 
-            queue_item = ag_malloc(sizeof(work_queue_t));
-            queue_item->path = dir_full_path;
-            queue_item->next = NULL;
-            pthread_mutex_lock(&work_queue_mtx);
-            if (work_queue_tail == NULL) {
-                work_queue = queue_item;
-            } else {
-                work_queue_tail->next = queue_item;
-            }
-            work_queue_tail = queue_item;
-            pthread_cond_signal(&files_ready);
-            pthread_mutex_unlock(&work_queue_mtx);
-            log_debug("%s added to work queue", dir_full_path);
-        } else if (opts.recurse_dirs) {
-            if (depth < opts.max_search_depth || opts.max_search_depth == -1) {
-                log_debug("Searching dir %s", dir_full_path);
-                ignores *child_ig;
-#ifdef HAVE_DIRENT_DNAMLEN
-                child_ig = init_ignore(ig, dir->d_name, dir->d_namlen);
-#else
-                child_ig = init_ignore(ig, dir->d_name, strlen(dir->d_name));
-#endif
-                search_dir(child_ig, base_path, dir_full_path, depth + 1,
-                           original_dev);
-                cleanup_ignore(child_ig);
-            } else {
-                if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {
-                    /*
-                     * If the user didn't intentionally specify a particular depth,
-                     * this is a warning...
-                     */
-                    log_err("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
-                } else {
-                    /* ... if they did, let's settle for debug. */
-                    log_debug("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
-                }
-            }
-        }
+				queue_item = (work_queue_t*) ag_malloc(sizeof(work_queue_t));
+				queue_item->path = dir_full_path;
+				queue_item->next = NULL;
+				pthread_mutex_lock(&work_queue_mtx);
+				if (work_queue_tail == NULL) {
+					work_queue = queue_item;
+				} else {
+					work_queue_tail->next = queue_item;
+				}
+				work_queue_tail = queue_item;
+				pthread_cond_signal(&files_ready);
+				pthread_mutex_unlock(&work_queue_mtx);
+				log_debug("%s added to work queue", dir_full_path);
+			} else if (opts.recurse_dirs) {
+				if (depth < opts.max_search_depth || opts.max_search_depth == -1) {
+					log_debug("Searching dir %s", dir_full_path);
+					ignores *child_ig;
+	#ifdef HAVE_DIRENT_DNAMLEN
+					child_ig = init_ignore(ig, dir->d_name, dir->d_namlen);
+	#else
+					child_ig = init_ignore(ig, dir->d_name, strlen(dir->d_name));
+	#endif
+					search_dir(child_ig, base_path, dir_full_path, depth + 1,
+							   original_dev);
+					cleanup_ignore(child_ig);
+				} else {
+					if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {
+						/*
+						 * If the user didn't intentionally specify a particular depth,
+						 * this is a warning...
+						 */
+						log_err("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
+					} else {
+						/* ... if they did, let's settle for debug. */
+						log_debug("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
+					}
+				}
+			}
 
-    cleanup:
-        free(dir);
-        dir = NULL;
-        if (queue_item == NULL) {
-            free(dir_full_path);
-            dir_full_path = NULL;
-        }
-    }
-
+		cleanup:
+			free(dir);
+			dir = NULL;
+			if (queue_item == NULL) {
+				free(dir_full_path);
+				dir_full_path = NULL;
+			}
+		}
+	}
+	
 search_dir_cleanup:
     check_symloop_leave(&current_dirkey);
     free(dir_list);
