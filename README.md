@@ -2,13 +2,20 @@
 
 A code searching tool similar to `ack`, with a focus on speed.
 
-[![Build Status](https://travis-ci.org/ggreer/the_silver_searcher.svg?branch=master)](https://travis-ci.org/ggreer/the_silver_searcher)
+## Modifications from official branch
 
-[![Floobits Status](https://floobits.com/ggreer/ag.svg)](https://floobits.com/ggreer/ag/redirect)
+* Fix threading so it doesn't slow down performance (improvements to searching were completely masked by slowdowns in the way pthreads were used)
+* Integrate Javelin regular expression engine instead of PCRE
+* Avoid boyer moore special case which was also slowing things down
 
-[![#ag on Freenode](http://img.shields.io/Freenode/%23ag.png)](https://webchat.freenode.net/?channels=ag)
+How much faster is it? 
 
-Do you know C? I invite you to pair with me to [help me get to Ag 1.0](http://geoff.greer.fm/2014/10/13/help-me-get-to-ag-10/).
+For simple short literal searches, expect 1.3-1.5x performance
+For regular expressions, you can expect 2-5x in many cases, with some results over 100x
+
+Prebuilt OSX binary included. (called jag)
+
+The remainder of README is from the original ag branch
 
 
 ## What's so great about Ag?
