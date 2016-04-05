@@ -281,6 +281,35 @@ void compile_study(Javelin::Pattern **re, char *q, const int pcre_opts, const in
 		Javelin::String s{q};
 		*re = new Javelin::Pattern(s, options);
 	}
+	catch(const Javelin::PatternException& exception) {
+		static const char *const PATTERN_EXCEPTION_TEXT[] =
+		{
+			"None",
+			"InternalError",
+			"Missing ')'",
+			"InvalidBackReference",
+			"InvalidOptions",
+			"LookBehindNotConstantByteLength",
+			"MalformedConditional",
+			"MaximumRepetitionCountExceeded",
+			"MinimumCountExceedsMaximumCount",
+			"TooManyByteCodeInstructions",
+			"TooManyCaptures",
+			"TooManyProgressCheckInstructions",
+			"UnableToParseGroupType",
+			"UnableToParseRepetition",
+			"UnableToResolveRecurseTarget",
+			"UnexpectedControlCharacter",
+			"UnexpectedEndOfPattern",
+			"UnexpectedGroupOptions",
+			"UnexpectedHexCharacter",
+			"UnexpectedLookBehindType",
+			"UnknownEscape",
+			"UnknownPosixCharacterClass",
+		};
+		
+		die("Bad regex! Javelin::Pattern failed: %s\nIf you meant to search for a literal string, run ag with -Q", PATTERN_EXCEPTION_TEXT[(int) exception.GetType()]);
+	}
 	catch(const Javelin::Exception& exception) {
 		die("Bad regex! Javelin::Pattern failed\nIf you meant to search for a literal string, run ag with -Q");
 	}

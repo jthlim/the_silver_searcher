@@ -32,8 +32,6 @@ int main(int argc, char **argv) {
     int pcre_opts = PCRE_MULTILINE;
     int study_opts = 0;
     worker_t *workers = NULL;
-    int workers_len;
-    int num_cores;
 
 #ifdef HAVE_PLEDGE
     if (pledge("stdio rpath proc exec", NULL) == -1) {

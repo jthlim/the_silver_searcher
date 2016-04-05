@@ -112,12 +112,12 @@ size_t get_lang_count() {
 char *make_lang_regex(char *ext_array, size_t num_exts) {
     int regex_capacity = 100;
     char *regex = (char*) ag_malloc(regex_capacity);
-    int regex_length = 3;
+    int regex_length = 5;
     int subsequent = 0;
     char *extension;
     size_t i;
 
-    strcpy(regex, "\\.(");
+    strcpy(regex, "\\.(?:");
 
     for (i = 0; i < num_exts; ++i) {
         extension = ext_array + i * SINGLE_EXT_LEN;
