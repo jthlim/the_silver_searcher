@@ -168,6 +168,7 @@ void cleanup_options(void) {
         free(opts.query);
     }
 
+	delete opts.vcs_ignore_pattern;
 	delete opts.pattern;
 	delete opts.ackmate_dir_pattern;
 	delete opts.file_search_pattern;
@@ -728,10 +729,14 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         exit(1);
     }
 	
-	opts.vcs_ignore_pattern = nullptr;
 	if(!opts.skip_vcs_ignores)
 	{
 		static const Javelin::String IGNORE_PATTERN = JS("\\.agignore|\\.gitignore|\\.hgignore|\\.svn|(\\.git)");
+		opts.vcs_ignore_pattern = new Javelin::Pattern(IGNORE_PATTERN, Javelin::Pattern::ANCHORED);
+	}
+	else
+	{
+		static const Javelin::String IGNORE_PATTERN = JS("\\.agignore");
 		opts.vcs_ignore_pattern = new Javelin::Pattern(IGNORE_PATTERN, Javelin::Pattern::ANCHORED);
 	}
 

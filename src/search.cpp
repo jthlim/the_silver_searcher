@@ -488,6 +488,47 @@ cleanup:
 	dir_full_path = NULL;
 }
 
+static void update_ignores(ignores* ig, dirent **dir_list, int results, const char* path)
+{
+	const void* captures[4];
+	captures[2] = nullptr;
+	captures[3] = nullptr;
+
+	for(int i = 0; i < results; ++i)
+	{
+		const char* name = dir_list[i]->d_name;
+		
+		if(opts.vcs_ignore_pattern->FullMatch(name, strlen(name), captures))
+		{
+			char *dir_full_path;
+			if(captures[2] != captures[3])
+			{
+				// We've found .git. Try to load .git/info/excludes
+				ag_asprintf(&dir_full_path, "%s/.git/info/excludes", path);
+				captures[2] = nullptr;
+				captures[3] = nullptr;
+			}
+			else
+			{
+				// We've found an ignore file
+				ag_asprintf(&dir_full_path, "%s/%s", path, name);
+			}
+			
+			if (strcmp(SVN_DIR, name) == 0) {
+				load_svn_ignore_patterns(ig, dir_full_path);
+			} else {
+				load_ignore_patterns(ig, dir_full_path);
+			}
+			
+			free(dir_full_path);
+		}
+	}
+	
+	if (opts.path_to_agignore) {
+		load_ignore_patterns(ig, opts.path_to_agignore);
+	}
+}
+
 /* TODO: Append matches to some data structure instead of just printing them out.
  * Then ag can have sweet summaries of matches/files scanned/time/etc.
  */
@@ -497,7 +538,6 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
     scandir_baton_t scandir_baton;
     int results = 0;
 
-    char *dir_full_path = NULL;
     int i;
 
     int symres;
@@ -536,46 +576,7 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
 		goto search_dir_cleanup;
 	}
 	
-	if(opts.vcs_ignore_pattern != nullptr)
-	{
-		const void* captures[4];
-		captures[2] = nullptr;
-		captures[3] = nullptr;
-		
-		for(int i = 0; i < results; ++i)
-		{
-			const char* name = dir_list[i]->d_name;
-			
-			if(opts.vcs_ignore_pattern->FullMatch(name, strlen(name), captures))
-			{
-				if(captures[2] != captures[3])
-				{
-					// We've found .git. Try to load .git/info/excludes
-					ag_asprintf(&dir_full_path, "%s/.git/info/excludes", path);
-					captures[2] = nullptr;
-					captures[3] = nullptr;
-				}
-				else
-				{
-					// We've found an ignore file
-					ag_asprintf(&dir_full_path, "%s/%s", path, name);
-				}
-
-				if (strcmp(SVN_DIR, name) == 0) {
-					load_svn_ignore_patterns(ig, dir_full_path);
-				} else {
-					load_ignore_patterns(ig, dir_full_path);
-				}
-
-				free(dir_full_path);
-				dir_full_path = NULL;
-			}
-		}
-	}
-	
-    if (opts.path_to_agignore) {
-        load_ignore_patterns(ig, opts.path_to_agignore);
-    }
+	update_ignores(ig, dir_list, results, path);
 
     scandir_baton.ig = ig;
     scandir_baton.base_path = base_path;
