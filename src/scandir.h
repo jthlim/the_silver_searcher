@@ -9,11 +9,6 @@ typedef struct {
     size_t base_path_len;
 } scandir_baton_t;
 
-typedef int (*filter_fp)(const char *path, const struct dirent *, void *);
-
-int ag_scandir(const char *dirname,
-               struct dirent ***namelist,
-               filter_fp filter,
-               void *baton);
+int ag_scandir_no_filter(const char *dirname, struct dirent ***namelist);
 
 #endif

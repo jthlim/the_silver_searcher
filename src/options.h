@@ -67,6 +67,7 @@ typedef struct {
     int recurse_dirs;
     int search_all_files;
     int skip_vcs_ignores;
+	Javelin::Pattern* vcs_ignore_pattern;
     int search_binary_files;
     int search_zip_files;
     int search_hidden_files;

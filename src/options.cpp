@@ -727,6 +727,13 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         log_err("Error: No query. What do you want to search for?");
         exit(1);
     }
+	
+	opts.vcs_ignore_pattern = nullptr;
+	if(!opts.skip_vcs_ignores)
+	{
+		static const Javelin::String IGNORE_PATTERN = JS("\\.agignore|\\.gitignore|\\.hgignore|\\.svn|(\\.git)");
+		opts.vcs_ignore_pattern = new Javelin::Pattern(IGNORE_PATTERN, Javelin::Pattern::ANCHORED);
+	}
 
     char *path = NULL;
 #ifdef PATH_MAX

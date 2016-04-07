@@ -422,7 +422,6 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
     int results = 0;
 
     char *dir_full_path = NULL;
-    const char *ignore_file = NULL;
     int i;
 
     int symres;
@@ -434,19 +433,70 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
         return;
     }
 
-    /* find agignore/gitignore/hgignore/etc files to load ignore patterns from */
-    for (i = 0; opts.skip_vcs_ignores ? (i == 0) : (ignore_pattern_files[i] != NULL); i++) {
-        ignore_file = ignore_pattern_files[i];
-        ag_asprintf(&dir_full_path, "%s/%s", path, ignore_file);
-        if (strcmp(SVN_DIR, ignore_file) == 0) {
-            load_svn_ignore_patterns(ig, dir_full_path);
-        } else {
-            load_ignore_patterns(ig, dir_full_path);
-        }
-        free(dir_full_path);
-        dir_full_path = NULL;
-    }
+	results = ag_scandir_no_filter(path, &dir_list);
+	if(results == 0)
+	{
+		log_debug("No results found in directory %s", path);
+		goto search_dir_cleanup;
+	}
+	if(results == -1)
+	{
+		if (errno == ENOTDIR) {
+			/* Not a directory. Probably a file. */
+			if (depth == 0 && opts.paths_len == 1) {
+				/* If we're only searching one file, don't print the filename header at the top. */
+				if (opts.print_path == PATH_PRINT_DEFAULT || opts.print_path == PATH_PRINT_DEFAULT_EACH_LINE) {
+					opts.print_path = PATH_PRINT_NOTHING;
+				}
+				/* If we're only searching one file and --only-matching is specified, disable line numbers too. */
+				if (opts.only_matching && opts.print_path == PATH_PRINT_NOTHING) {
+					opts.print_line_numbers = FALSE;
+				}
+			}
+			search_file(path);
+		} else {
+			log_err("Error opening directory %s: %s", path, strerror(errno));
+		}
+		goto search_dir_cleanup;
+	}
+	
+	if(opts.vcs_ignore_pattern != nullptr)
+	{
+		const void* captures[4];
+		captures[2] = nullptr;
+		captures[3] = nullptr;
+		
+		for(int i = 0; i < results; ++i)
+		{
+			const char* name = dir_list[i]->d_name;
+			
+			if(opts.vcs_ignore_pattern->FullMatch(name, strlen(name), captures))
+			{
+				if(captures[2] != captures[3])
+				{
+					// We've found .git. Try to load .git/info/excludes
+					ag_asprintf(&dir_full_path, "%s/.git/info/excludes", path);
+					captures[2] = nullptr;
+					captures[3] = nullptr;
+				}
+				else
+				{
+					// We've found an ignore file
+					ag_asprintf(&dir_full_path, "%s/%s", path, name);
+				}
 
+				if (strcmp(SVN_DIR, name) == 0) {
+					load_svn_ignore_patterns(ig, dir_full_path);
+				} else {
+					load_ignore_patterns(ig, dir_full_path);
+				}
+
+				free(dir_full_path);
+				dir_full_path = NULL;
+			}
+		}
+	}
+	
     if (opts.path_to_agignore) {
         load_ignore_patterns(ig, opts.path_to_agignore);
     }
@@ -454,108 +504,84 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
     scandir_baton.ig = ig;
     scandir_baton.base_path = base_path;
     scandir_baton.base_path_len = base_path ? strlen(base_path) : 0;
-    results = ag_scandir(path, &dir_list, &filename_filter, &scandir_baton);
-	{
-		if (results == 0) {
-			log_debug("No results found in directory %s", path);
-			goto search_dir_cleanup;
-		} else if (results == -1) {
-			if (errno == ENOTDIR) {
-				/* Not a directory. Probably a file. */
-				if (depth == 0 && opts.paths_len == 1) {
-					/* If we're only searching one file, don't print the filename header at the top. */
-					if (opts.print_path == PATH_PRINT_DEFAULT || opts.print_path == PATH_PRINT_DEFAULT_EACH_LINE) {
-						opts.print_path = PATH_PRINT_NOTHING;
-					}
-					/* If we're only searching one file and --only-matching is specified, disable line numbers too. */
-					if (opts.only_matching && opts.print_path == PATH_PRINT_NOTHING) {
-						opts.print_line_numbers = FALSE;
-					}
-				}
-				search_file(path);
-			} else {
-				log_err("Error opening directory %s: %s", path, strerror(errno));
-			}
-			goto search_dir_cleanup;
-		}
 
-		for (i = 0; i < results; i++) {
-			dir = dir_list[i];
-			ag_asprintf(&dir_full_path, "%s/%s", path, dir->d_name);
-	#ifndef _WIN32
-			if (opts.one_dev) {
-				struct stat s;
-				if (lstat(dir_full_path, &s) != 0) {
-					log_err("Failed to get device information for %s. Skipping...", dir->d_name);
-					goto cleanup;
-				}
-				if (s.st_dev != original_dev) {
-					log_debug("File %s crosses a device boundary (is probably a mount point.) Skipping...", dir->d_name);
-					goto cleanup;
-				}
-			}
-	#endif
-
-			/* If a link points to a directory then we need to treat it as a directory. */
-			if (!opts.follow_symlinks && is_symlink(path, dir)) {
-				log_debug("File %s ignored becaused it's a symlink", dir->d_name);
+	for (i = 0; i < results; i++) {
+		dir = dir_list[i];
+		if(!filename_filter(path, dir, &scandir_baton)) goto cleanup;
+		
+		ag_asprintf(&dir_full_path, "%s/%s", path, dir->d_name);
+#ifndef _WIN32
+		if (opts.one_dev) {
+			struct stat s;
+			if (lstat(dir_full_path, &s) != 0) {
+				log_err("Failed to get device information for %s. Skipping...", dir->d_name);
 				goto cleanup;
 			}
+			if (s.st_dev != original_dev) {
+				log_debug("File %s crosses a device boundary (is probably a mount point.) Skipping...", dir->d_name);
+				goto cleanup;
+			}
+		}
+#endif
 
-			if (!is_directory(path, dir)) {
-				if(opts.file_search_pattern) {
-					if(opts.file_search_pattern->HasPartialMatch(dir_full_path, strlen(dir_full_path))) {
-						log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
-						pthread_mutex_lock(&print_mtx);
-						print_path(dir_full_path, opts.path_sep);
-						pthread_mutex_unlock(&print_mtx);
-						opts.match_found = 1;
-						goto cleanup;
-					} else {
-						log_debug("Skipping %s due to file_search_regex.", dir_full_path);
-						goto cleanup;
-					}
-				}
+		/* If a link points to a directory then we need to treat it as a directory. */
+		if (!opts.follow_symlinks && is_symlink(path, dir)) {
+			log_debug("File %s ignored becaused it's a symlink", dir->d_name);
+			goto cleanup;
+		}
 
-				log_debug("%s adding to work queue", dir_full_path);
-				Javelin::ThreadPool::GetSharedThreadPool().AddTask(new SearchFileTask(dir_full_path));
-				dir_full_path = NULL;
-			} else if (opts.recurse_dirs) {
-				if (depth < opts.max_search_depth || opts.max_search_depth == -1) {
-					log_debug("Searching dir %s", dir_full_path);
-					ignores *child_ig;
-	#ifdef HAVE_DIRENT_DNAMLEN
-					child_ig = init_ignore(ig, dir->d_name, dir->d_namlen);
-	#else
-					child_ig = init_ignore(ig, dir->d_name, strlen(dir->d_name));
-	#endif
-					search_dir(child_ig, base_path, dir_full_path, depth + 1,
-							   original_dev);
-					cleanup_ignore(child_ig);
+		if (!is_directory(path, dir)) {
+			if(opts.file_search_pattern) {
+				if(opts.file_search_pattern->HasPartialMatch(dir_full_path, strlen(dir_full_path))) {
+					log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
+					pthread_mutex_lock(&print_mtx);
+					print_path(dir_full_path, opts.path_sep);
+					pthread_mutex_unlock(&print_mtx);
+					opts.match_found = 1;
+					goto cleanup;
 				} else {
-					if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {
-						/*
-						 * If the user didn't intentionally specify a particular depth,
-						 * this is a warning...
-						 */
-						log_err("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
-					} else {
-						/* ... if they did, let's settle for debug. */
-						log_debug("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
-					}
+					log_debug("Skipping %s due to file_search_regex.", dir_full_path);
+					goto cleanup;
 				}
 			}
 
-		cleanup:
-			free(dir);
-			dir = NULL;
-			free(dir_full_path);
+			log_debug("%s adding to work queue", dir_full_path);
+			Javelin::ThreadPool::GetSharedThreadPool().AddTask(new SearchFileTask(dir_full_path));
 			dir_full_path = NULL;
+		} else if (opts.recurse_dirs) {
+			if (depth < opts.max_search_depth || opts.max_search_depth == -1) {
+				log_debug("Searching dir %s", dir_full_path);
+				ignores *child_ig;
+#ifdef HAVE_DIRENT_DNAMLEN
+				child_ig = init_ignore(ig, dir->d_name, dir->d_namlen);
+#else
+				child_ig = init_ignore(ig, dir->d_name, strlen(dir->d_name));
+#endif
+				search_dir(child_ig, base_path, dir_full_path, depth + 1,
+						   original_dev);
+				cleanup_ignore(child_ig);
+			} else {
+				if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {
+					/*
+					 * If the user didn't intentionally specify a particular depth,
+					 * this is a warning...
+					 */
+					log_err("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
+				} else {
+					/* ... if they did, let's settle for debug. */
+					log_debug("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
+				}
+			}
 		}
+
+	cleanup:
+		free(dir);
+		dir = NULL;
+		free(dir_full_path);
+		dir_full_path = NULL;
 	}
-	
+
 search_dir_cleanup:
     check_symloop_leave(&current_dirkey);
     free(dir_list);
-    dir_list = NULL;
 }
