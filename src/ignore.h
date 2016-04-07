@@ -27,7 +27,7 @@ struct ignores {
     char *abs_path;
     size_t abs_path_len;
 
-    struct ignores *parent;
+    const ignores* parent;
 };
 typedef struct ignores ignores;
 
@@ -35,7 +35,7 @@ extern ignores *root_ignores;
 
 extern const char *ignore_pattern_files[];
 
-ignores *init_ignore(ignores *parent, const char *dirname, const size_t dirname_len);
+ignores *init_ignore(const ignores *parent, const char *dirname, const size_t dirname_len);
 void cleanup_ignore(ignores *ig);
 
 void add_ignore_pattern(ignores *ig, const char *pattern);
@@ -45,6 +45,6 @@ void load_svn_ignore_patterns(ignores *ig, const char *path);
 
 int filename_filter(const char *path, const struct dirent *dir, void *baton);
 
-int is_empty(ignores *ig);
+int is_empty(const ignores *ig);
 
 #endif

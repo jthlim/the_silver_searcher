@@ -411,13 +411,89 @@ static int check_symloop_leave(dirkey_t *dirkey) {
 #endif
 }
 
+void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const char* path, dev_t original_dev, int depth)
+{
+	char *dir_full_path = NULL;
+	if(!filename_filter(path, dir, &scandir_baton)) goto cleanup;
+	
+	ag_asprintf(&dir_full_path, "%s/%s", path, dir->d_name);
+#ifndef _WIN32
+	if (opts.one_dev) {
+		struct stat s;
+		if (lstat(dir_full_path, &s) != 0) {
+			log_err("Failed to get device information for %s. Skipping...", dir->d_name);
+			goto cleanup;
+		}
+		if (s.st_dev != original_dev) {
+			log_debug("File %s crosses a device boundary (is probably a mount point.) Skipping...", dir->d_name);
+			goto cleanup;
+		}
+	}
+#endif
+	
+	/* If a link points to a directory then we need to treat it as a directory. */
+	if (!opts.follow_symlinks && is_symlink(path, dir)) {
+		log_debug("File %s ignored becaused it's a symlink", dir->d_name);
+		goto cleanup;
+	}
+	
+	if (!is_directory(path, dir)) {
+		if(opts.file_search_pattern) {
+			if(opts.file_search_pattern->HasPartialMatch(dir_full_path, strlen(dir_full_path))) {
+				log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
+				pthread_mutex_lock(&print_mtx);
+				print_path(dir_full_path, opts.path_sep);
+				pthread_mutex_unlock(&print_mtx);
+				opts.match_found = 1;
+				goto cleanup;
+			} else {
+				log_debug("Skipping %s due to file_search_regex.", dir_full_path);
+				goto cleanup;
+			}
+		}
+		
+		log_debug("%s adding to work queue", dir_full_path);
+		Javelin::ThreadPool::GetSharedThreadPool().AddTask(new SearchFileTask(dir_full_path));
+		dir_full_path = NULL;
+	} else if (opts.recurse_dirs) {
+		if (depth < opts.max_search_depth || opts.max_search_depth == -1) {
+			log_debug("Searching dir %s", dir_full_path);
+			ignores *child_ig;
+#ifdef HAVE_DIRENT_DNAMLEN
+			child_ig = init_ignore(scandir_baton.ig, dir->d_name, dir->d_namlen);
+#else
+			child_ig = init_ignore(scandir_baton.ig, dir->d_name, strlen(dir->d_name));
+#endif
+			search_dir(child_ig, scandir_baton.base_path, dir_full_path, depth + 1,
+					   original_dev);
+			cleanup_ignore(child_ig);
+		} else {
+			if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {
+				/*
+				 * If the user didn't intentionally specify a particular depth,
+				 * this is a warning...
+				 */
+				log_err("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
+			} else {
+				/* ... if they did, let's settle for debug. */
+				log_debug("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
+			}
+		}
+	}
+	
+cleanup:
+	free(dir);
+	dir = NULL;
+	free(dir_full_path);
+	dir_full_path = NULL;
+}
+
 /* TODO: Append matches to some data structure instead of just printing them out.
  * Then ag can have sweet summaries of matches/files scanned/time/etc.
  */
 void search_dir(ignores *ig, const char *base_path, const char *path, const int depth,
                 dev_t original_dev) {
     struct dirent **dir_list = NULL;
-    struct dirent *dir = NULL;
     scandir_baton_t scandir_baton;
     int results = 0;
 
@@ -506,79 +582,7 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
     scandir_baton.base_path_len = base_path ? strlen(base_path) : 0;
 
 	for (i = 0; i < results; i++) {
-		dir = dir_list[i];
-		if(!filename_filter(path, dir, &scandir_baton)) goto cleanup;
-		
-		ag_asprintf(&dir_full_path, "%s/%s", path, dir->d_name);
-#ifndef _WIN32
-		if (opts.one_dev) {
-			struct stat s;
-			if (lstat(dir_full_path, &s) != 0) {
-				log_err("Failed to get device information for %s. Skipping...", dir->d_name);
-				goto cleanup;
-			}
-			if (s.st_dev != original_dev) {
-				log_debug("File %s crosses a device boundary (is probably a mount point.) Skipping...", dir->d_name);
-				goto cleanup;
-			}
-		}
-#endif
-
-		/* If a link points to a directory then we need to treat it as a directory. */
-		if (!opts.follow_symlinks && is_symlink(path, dir)) {
-			log_debug("File %s ignored becaused it's a symlink", dir->d_name);
-			goto cleanup;
-		}
-
-		if (!is_directory(path, dir)) {
-			if(opts.file_search_pattern) {
-				if(opts.file_search_pattern->HasPartialMatch(dir_full_path, strlen(dir_full_path))) {
-					log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
-					pthread_mutex_lock(&print_mtx);
-					print_path(dir_full_path, opts.path_sep);
-					pthread_mutex_unlock(&print_mtx);
-					opts.match_found = 1;
-					goto cleanup;
-				} else {
-					log_debug("Skipping %s due to file_search_regex.", dir_full_path);
-					goto cleanup;
-				}
-			}
-
-			log_debug("%s adding to work queue", dir_full_path);
-			Javelin::ThreadPool::GetSharedThreadPool().AddTask(new SearchFileTask(dir_full_path));
-			dir_full_path = NULL;
-		} else if (opts.recurse_dirs) {
-			if (depth < opts.max_search_depth || opts.max_search_depth == -1) {
-				log_debug("Searching dir %s", dir_full_path);
-				ignores *child_ig;
-#ifdef HAVE_DIRENT_DNAMLEN
-				child_ig = init_ignore(ig, dir->d_name, dir->d_namlen);
-#else
-				child_ig = init_ignore(ig, dir->d_name, strlen(dir->d_name));
-#endif
-				search_dir(child_ig, base_path, dir_full_path, depth + 1,
-						   original_dev);
-				cleanup_ignore(child_ig);
-			} else {
-				if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {
-					/*
-					 * If the user didn't intentionally specify a particular depth,
-					 * this is a warning...
-					 */
-					log_err("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
-				} else {
-					/* ... if they did, let's settle for debug. */
-					log_debug("Skipping %s. Use the --depth option to search deeper.", dir_full_path);
-				}
-			}
-		}
-
-	cleanup:
-		free(dir);
-		dir = NULL;
-		free(dir_full_path);
-		dir_full_path = NULL;
+		process_dirent(dir_list[i], scandir_baton, path, original_dev, depth);
 	}
 
 search_dir_cleanup:
