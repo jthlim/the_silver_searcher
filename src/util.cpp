@@ -336,11 +336,10 @@ int is_binary(const void *buf, const size_t buf_len) {
         return 1;
     }
 
+	if(memchr(buf, '\0', total_bytes) != nullptr) return 1;
+	
     for (i = 0; i < total_bytes; i++) {
-        if (buf_c[i] == '\0') {
-            /* NULL char. It's binary */
-            return 1;
-        } else if ((buf_c[i] < 7 || buf_c[i] > 14) && (buf_c[i] < 32 || buf_c[i] > 127)) {
+        if ((buf_c[i] < 7 || buf_c[i] > 14) && (buf_c[i] < 32 || buf_c[i] > 127)) {
             /* UTF-8 detection */
             if (buf_c[i] > 193 && buf_c[i] < 224 && i + 1 < total_bytes) {
                 i++;
