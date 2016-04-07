@@ -7,6 +7,7 @@ A code searching tool similar to `ack`, with a focus on speed.
 * Fix threading so it doesn't slow down performance (improvements to searching were completely masked by slowdowns in the way pthreads were used)
 * Integrate Javelin regular expression engine instead of PCRE
 * Avoid boyer moore special case which was also slowing things down
+* Avoid trying to open ignore files that don't exist
 
 How much faster is it? 
 
