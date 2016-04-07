@@ -10,7 +10,7 @@ A code searching tool similar to `ack`, with a focus on speed.
 
 How much faster is it? 
 
-For simple short literal searches, expect 1.3-1.5x performance
+For simple short literal searches, expect ~2x performance
 
 For regular expressions, you can expect 2-5x in many cases, with some results over 100x
 
