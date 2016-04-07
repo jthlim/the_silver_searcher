@@ -27,7 +27,7 @@ int ag_scandir_no_filter(const char *dirname,
 		{
 			// Skip "." and ".." entries
 			if(entry->d_name[1] == '\0') continue;
-			if(entry->d_name[1] == '.' && entry->d_name[1] == '\0') continue;
+			if(entry->d_name[1] == '.' && entry->d_name[2] == '\0') continue;
 		}
 		
 		if (results_len >= names_len) {
