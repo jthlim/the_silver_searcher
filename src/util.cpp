@@ -336,7 +336,10 @@ int is_binary(const void *buf, const size_t buf_len) {
         return 1;
     }
 
-	if(memchr(buf, '\0', total_bytes) != nullptr) return 1;
+	if(memchr(buf, '\0', total_bytes) != nullptr)
+	{
+		return 1;
+	}
 	
     for (i = 0; i < total_bytes; i++) {
         if ((buf_c[i] < 7 || buf_c[i] > 14) && (buf_c[i] < 32 || buf_c[i] > 127)) {
