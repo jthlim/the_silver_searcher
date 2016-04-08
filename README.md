@@ -18,7 +18,7 @@ For regular expressions, you can expect 2-5x in many cases, with some results ov
 Note that this code *cannot be built* yet due to dependence on libJavelinPattern which I am
 currently in the process of trying to release.
 
-A [prebuilt OSX binary](jag) included so that the performance claims can be tested.
+A [prebuilt OSX binary](jag) called jag (for *J*avelin *AG*) is included for convenience.
 
 The remainder of README is from the original ag branch
 
