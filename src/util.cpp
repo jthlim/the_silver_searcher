@@ -277,8 +277,8 @@ void compile_study(Javelin::Pattern **re, char *q, const int pcre_opts, const in
 	if(pcre_opts & PCRE_DOTALL) options |= Javelin::Pattern::DOTALL;
 	if(pcre_opts & PCRE_MULTILINE) options |= Javelin::Pattern::MULTILINE;
 	
+	Javelin::String s{q};
 	try {
-		Javelin::String s{q};
 		*re = new Javelin::Pattern(s, options);
 	}
 	catch(const Javelin::PatternException& exception) {
@@ -304,11 +304,20 @@ void compile_study(Javelin::Pattern **re, char *q, const int pcre_opts, const in
 			"UnexpectedGroupOptions",
 			"UnexpectedHexCharacter",
 			"UnexpectedLookBehindType",
+			"UnexpectedToken",
 			"UnknownEscape",
 			"UnknownPosixCharacterClass",
 		};
 		
-		die("Bad regex! Javelin::Pattern failed: %s\nIf you meant to search for a literal string, run ag with -Q", PATTERN_EXCEPTION_TEXT[(int) exception.GetType()]);
+		const void* context = exception.GetContext();
+		if(context != nullptr)
+		{
+			die("Bad regex! Javelin::Pattern failed: %s before position %zu\nIf you meant to search for a literal string, run ag with -Q", PATTERN_EXCEPTION_TEXT[(int) exception.GetType()], uintptr_t(context) - uintptr_t(s.GetData()));
+		}
+		else
+		{
+			die("Bad regex! Javelin::Pattern failed: %s\nIf you meant to search for a literal string, run ag with -Q", PATTERN_EXCEPTION_TEXT[(int) exception.GetType()]);
+		}
 	}
 	catch(const Javelin::Exception& exception) {
 		die("Bad regex! Javelin::Pattern failed\nIf you meant to search for a literal string, run ag with -Q");
