@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		837A036C1CB2E1EB00A5E1E6 /* libJavelinPattern.OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 837A036B1CB2E1EB00A5E1E6 /* libJavelinPattern.OSX.a */; };
 		839798D11C81742C000A261C /* decompress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798BB1C81742C000A261C /* decompress.cpp */; };
 		839798D21C81742C000A261C /* ignore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798BD1C81742C000A261C /* ignore.cpp */; };
 		839798D31C81742C000A261C /* lang.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798BF1C81742C000A261C /* lang.cpp */; };
@@ -20,7 +19,95 @@
 		839798DA1C81742C000A261C /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798CB1C81742C000A261C /* search.cpp */; };
 		839798DB1C81742C000A261C /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798CF1C81742C000A261C /* util.cpp */; };
 		839798E21C817701000A261C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 839798E11C817701000A261C /* libz.tbd */; };
+		83E9BFD61CCCAE3500F008CC /* libJavelinPattern.OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 83E9BFC31CCCAE1500F008CC /* libJavelinPattern.OSX.a */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		83E9BFBE1CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83F21F7412CB614600768A5A;
+			remoteInfo = "iOS Static Library";
+		};
+		83E9BFC01CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83F21F7512CB614600768A5A;
+			remoteInfo = "OSX Static Library";
+		};
+		83E9BFC21CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8361FEA61CB198810040AF94;
+			remoteInfo = "OSX Pattern Static Library";
+		};
+		83E9BFC41CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 837F0B241588BF2C00F4808F;
+			remoteInfo = "iOS Unit Tests";
+		};
+		83E9BFC61CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 837967D5157B87C600D2A726;
+			remoteInfo = "OSX Unit Tests";
+		};
+		83E9BFC81CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 839FB2DD17048157009F8AA7;
+			remoteInfo = FbxConvert;
+		};
+		83E9BFCA1CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8383ED7A171ED21400B0A282;
+			remoteInfo = FbxAnimConvert;
+		};
+		83E9BFCC1CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83BD15FA19C3D7020042EAFD;
+			remoteInfo = SceneEditor;
+		};
+		83E9BFCE1CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83002DB61CB22F5E005BF043;
+			remoteInfo = jrpc;
+		};
+		83E9BFD01CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83D8DBAB1C06EABF0088C975;
+			remoteInfo = PatternCompiler;
+		};
+		83E9BFD21CCCAE1500F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83D8DB991C06EA190088C975;
+			remoteInfo = UnicodeDataParser;
+		};
+		83E9BFD41CCCAE2A00F008CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 8361FD311CB198810040AF94;
+			remoteInfo = "OSX Pattern Static Library";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		839798AE1C817402000A261C /* CopyFiles */ = {
@@ -36,7 +123,6 @@
 
 /* Begin PBXFileReference section */
 		837A03691CB2CC9700A5E1E6 /* libpcre.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpcre.a; path = "../../../pcre-8.38/.libs/libpcre.a"; sourceTree = "<group>"; };
-		837A036B1CB2E1EB00A5E1E6 /* libJavelinPattern.OSX.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavelinPattern.OSX.a; path = "../../../../../Library/Developer/Xcode/DerivedData/Javelin-ckygltlyavnenpbguxrnxuvkizaq/Build/Products/Final/libJavelinPattern.OSX.a"; sourceTree = "<group>"; };
 		839798B01C817402000A261C /* ag */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ag; sourceTree = BUILT_PRODUCTS_DIR; };
 		839798BA1C81742C000A261C /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../src/config.h; sourceTree = "<group>"; };
 		839798BB1C81742C000A261C /* decompress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = decompress.cpp; path = ../../src/decompress.cpp; sourceTree = "<group>"; };
@@ -61,6 +147,7 @@
 		839798CF1C81742C000A261C /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = ../../src/util.cpp; sourceTree = "<group>"; };
 		839798D01C81742C000A261C /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = ../../src/util.h; sourceTree = "<group>"; };
 		839798E11C817701000A261C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Javelin.xcodeproj; path = ../../../Personal/Javelin/Projects/Javelin.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,7 +155,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				837A036C1CB2E1EB00A5E1E6 /* libJavelinPattern.OSX.a in Frameworks */,
+				83E9BFD61CCCAE3500F008CC /* libJavelinPattern.OSX.a in Frameworks */,
 				839798E21C817701000A261C /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -80,6 +167,7 @@
 			isa = PBXGroup;
 			children = (
 				839798E11C817701000A261C /* libz.tbd */,
+				83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */,
 				839798B21C817402000A261C /* ag */,
 				839798B11C817402000A261C /* Products */,
 			);
@@ -119,9 +207,26 @@
 				839798CF1C81742C000A261C /* util.cpp */,
 				839798D01C81742C000A261C /* util.h */,
 				837A03691CB2CC9700A5E1E6 /* libpcre.a */,
-				837A036B1CB2E1EB00A5E1E6 /* libJavelinPattern.OSX.a */,
 			);
 			path = ag;
+			sourceTree = "<group>";
+		};
+		83E9BFB01CCCAE1400F008CC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				83E9BFBF1CCCAE1500F008CC /* libJavelin.iOS.a */,
+				83E9BFC11CCCAE1500F008CC /* libJavelin.OSX.a */,
+				83E9BFC31CCCAE1500F008CC /* libJavelinPattern.OSX.a */,
+				83E9BFC51CCCAE1500F008CC /* iOS Unit Tests.app */,
+				83E9BFC71CCCAE1500F008CC /* OSX Unit Tests */,
+				83E9BFC91CCCAE1500F008CC /* FbxConvert */,
+				83E9BFCB1CCCAE1500F008CC /* FbxAnimConvert */,
+				83E9BFCD1CCCAE1500F008CC /* SceneEditor.app */,
+				83E9BFCF1CCCAE1500F008CC /* jrpc */,
+				83E9BFD11CCCAE1500F008CC /* PatternCompiler */,
+				83E9BFD31CCCAE1500F008CC /* UnicodeDataParser */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -138,6 +243,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				83E9BFD51CCCAE2A00F008CC /* PBXTargetDependency */,
 			);
 			name = ag;
 			productName = ag;
@@ -168,12 +274,98 @@
 			mainGroup = 839798A71C817402000A261C;
 			productRefGroup = 839798B11C817402000A261C /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 83E9BFB01CCCAE1400F008CC /* Products */;
+					ProjectRef = 83E9BFAF1CCCAE1400F008CC /* Javelin.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				839798AF1C817402000A261C /* ag */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		83E9BFBF1CCCAE1500F008CC /* libJavelin.iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJavelin.iOS.a;
+			remoteRef = 83E9BFBE1CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFC11CCCAE1500F008CC /* libJavelin.OSX.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJavelin.OSX.a;
+			remoteRef = 83E9BFC01CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFC31CCCAE1500F008CC /* libJavelinPattern.OSX.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJavelinPattern.OSX.a;
+			remoteRef = 83E9BFC21CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFC51CCCAE1500F008CC /* iOS Unit Tests.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = "iOS Unit Tests.app";
+			remoteRef = 83E9BFC41CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFC71CCCAE1500F008CC /* OSX Unit Tests */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "OSX Unit Tests";
+			remoteRef = 83E9BFC61CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFC91CCCAE1500F008CC /* FbxConvert */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = FbxConvert;
+			remoteRef = 83E9BFC81CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFCB1CCCAE1500F008CC /* FbxAnimConvert */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = FbxAnimConvert;
+			remoteRef = 83E9BFCA1CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFCD1CCCAE1500F008CC /* SceneEditor.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = SceneEditor.app;
+			remoteRef = 83E9BFCC1CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFCF1CCCAE1500F008CC /* jrpc */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = jrpc;
+			remoteRef = 83E9BFCE1CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFD11CCCAE1500F008CC /* PatternCompiler */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = PatternCompiler;
+			remoteRef = 83E9BFD01CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		83E9BFD31CCCAE1500F008CC /* UnicodeDataParser */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = UnicodeDataParser;
+			remoteRef = 83E9BFD21CCCAE1500F008CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		839798AC1C817402000A261C /* Sources */ = {
@@ -195,6 +387,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		83E9BFD51CCCAE2A00F008CC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "OSX Pattern Static Library";
+			targetProxy = 83E9BFD41CCCAE2A00F008CC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		839798B51C817402000A261C /* Debug */ = {
@@ -235,10 +435,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "/Users/jtlim/Source/Web/pcre-8.38";
+				LD_GENERATE_MAP_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				SEPARATE_STRIP = YES;
 				USER_HEADER_SEARCH_PATHS = /Users/jtlim/Source/Personal;
 			};
 			name = Debug;
@@ -275,10 +475,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "/Users/jtlim/Source/Web/pcre-8.38";
+				LD_GENERATE_MAP_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				SEPARATE_STRIP = YES;
 				USER_HEADER_SEARCH_PATHS = /Users/jtlim/Source/Personal;
 			};
 			name = Release;
@@ -286,6 +486,10 @@
 		839798B81C817402000A261C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					JBUILDCONFIG_FINAL,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -293,6 +497,10 @@
 		839798B91C817402000A261C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					JBUILDCONFIG_FINAL,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -329,10 +537,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "/Users/jtlim/Source/Web/pcre-8.38";
+				LD_GENERATE_MAP_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				SEPARATE_STRIP = YES;
 				USER_HEADER_SEARCH_PATHS = /Users/jtlim/Source/Personal;
 			};
 			name = Final;
@@ -340,6 +548,10 @@
 		839799091C817A5F000A261C /* Final */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					JBUILDCONFIG_FINAL,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Final;
