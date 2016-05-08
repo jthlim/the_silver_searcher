@@ -11,14 +11,6 @@
 #include "scandir.h"
 #include "util.h"
 
-#ifdef _WIN32
-#include <shlwapi.h>
-#define fnmatch(x, y, z) (!PathMatchSpec(y, x))
-#else
-#include <fnmatch.h>
-const int fnmatch_flags = FNM_PATHNAME;
-#endif
-
 /* TODO: build a huge-ass list of files we want to ignore by default (build cache stuff, pyc files, etc) */
 
 ignores *root_ignores;
@@ -320,30 +312,36 @@ static int path_ignore_search(const ignores *ig, const char *path, const char *f
             log_debug("pattern %s doesn't match path %s", ig->names[i], slash_filename);
         }
 
-        for (i = 0; i < ig->slash_regexes_len; i++) {
-            if (ig->slash_patterns[i]->HasFullMatch(slash_filename, strlen(slash_filename))) {
-                log_debug("file %s ignored because name matches slash regex pattern %s", slash_filename, ig->slash_regexes[i]);
-                return 1;
-            }
-//            if (fnmatch(ig->slash_regexes[i], slash_filename, fnmatch_flags) == 0) {
-//                log_debug("file %s ignored because name matches slash regex pattern %s", slash_filename, ig->slash_regexes[i]);
-//                return 1;
-//            }
-            log_debug("pattern %s doesn't match slash file %s", ig->slash_regexes[i], slash_filename);
-        }
+		if(ig->slash_regexes_len) {
+			size_t slash_filename_len = strlen(slash_filename);
+			for (i = 0; i < ig->slash_regexes_len; i++) {
+				if (ig->slash_patterns[i]->HasFullMatch(slash_filename, slash_filename_len)) {
+					log_debug("file %s ignored because name matches slash regex pattern %s", slash_filename, ig->slash_regexes[i]);
+					return 1;
+				}
+//				if (fnmatch(ig->slash_regexes[i], slash_filename, fnmatch_flags) == 0) {
+//					log_debug("file %s ignored because name matches slash regex pattern %s", slash_filename, ig->slash_regexes[i]);
+//					return 1;
+//				}
+				log_debug("pattern %s doesn't match slash file %s", ig->slash_regexes[i], slash_filename);
+			}
+		}
     }
 
-    for (i = 0; i < ig->regexes_len; i++) {
-        if (ig->patterns[i]->HasFullMatch(filename, strlen(filename))) {
-            log_debug("file %s ignored because name matches regex pattern %s", filename, ig->regexes[i]);
-            return 1;
-        }
-//        if (fnmatch(ig->regexes[i], filename, fnmatch_flags) == 0) {
-//            log_debug("file %s ignored because name matches regex pattern %s", filename, ig->regexes[i]);
-//            return 1;
-//        }
-        log_debug("pattern %s doesn't match file %s", ig->regexes[i], filename);
-    }
+	if(ig->slash_regexes_len) {
+		size_t filename_len = strlen(filename);
+		for (i = 0; i < ig->regexes_len; i++) {
+			if (ig->patterns[i]->HasFullMatch(filename, filename_len)) {
+				log_debug("file %s ignored because name matches regex pattern %s", filename, ig->regexes[i]);
+				return 1;
+			}
+//			if (fnmatch(ig->regexes[i], filename, fnmatch_flags) == 0) {
+//				log_debug("file %s ignored because name matches regex pattern %s", filename, ig->regexes[i]);
+//				return 1;
+//			}
+			log_debug("pattern %s doesn't match file %s", ig->regexes[i], filename);
+		}
+	}
 
     return ackmate_dir_match(temp);
 }
@@ -443,9 +441,9 @@ void build_patterns(ignores *ig)
 		for(size_t i = 0; i < ig->regexes_len; ++i)
 		{
 			try {
-				ig->patterns[i] = new Javelin::Pattern(Javelin::String{ig->regexes[i]}, Javelin::Pattern::USE_GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
+				ig->patterns[i] = new Javelin::Pattern(Javelin::String{ig->regexes[i]}, Javelin::Pattern::GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
 			} catch (...) {
-				ig->patterns[i] = new Javelin::Pattern(Javelin::String::EMPTY_STRING, Javelin::Pattern::USE_GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
+				ig->patterns[i] = new Javelin::Pattern(Javelin::String::EMPTY_STRING, Javelin::Pattern::GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
 			}
 		}
 	}
@@ -455,7 +453,11 @@ void build_patterns(ignores *ig)
 		ig->slash_patterns = new Javelin::Pattern*[ig->slash_regexes_len];
 		for(size_t i = 0; i < ig->slash_regexes_len; ++i)
 		{
-			ig->slash_patterns[i] = new Javelin::Pattern(Javelin::String{ig->slash_regexes[i]}, Javelin::Pattern::USE_GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
+			try {
+				ig->slash_patterns[i] = new Javelin::Pattern(Javelin::String{ig->slash_regexes[i]}, Javelin::Pattern::GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
+			} catch(...) {
+				ig->slash_patterns[i] = new Javelin::Pattern(Javelin::String::EMPTY_STRING, Javelin::Pattern::GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
+			}
 		}
 	}	
 }
