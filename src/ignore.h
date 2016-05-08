@@ -3,6 +3,7 @@
 
 #include <dirent.h>
 #include <sys/types.h>
+#include "Javelin/Javelin.h"
 
 #define SVN_DIR_PROP_BASE "dir-prop-base"
 #define SVN_DIR ".svn"
@@ -17,8 +18,11 @@ struct ignores {
     char **slash_names; /* Same but starts with a slash */
     size_t slash_names_len;
 
+	Javelin::Pattern** patterns;
     char **regexes; /* For patterns that need fnmatch */
     size_t regexes_len;
+	
+	Javelin::Pattern** slash_patterns;
     char **slash_regexes;
     size_t slash_regexes_len;
 
@@ -37,6 +41,7 @@ extern const char *ignore_pattern_files[];
 
 ignores *init_ignore(const ignores *parent, const char *dirname, const size_t dirname_len);
 void cleanup_ignore(ignores *ig);
+void build_patterns(ignores *ig);
 
 void add_ignore_pattern(ignores *ig, const char *pattern);
 

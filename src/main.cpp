@@ -100,6 +100,7 @@ int main(int argc, char **argv) {
         compile_study(&opts.pattern, opts.query, pcre_opts, study_opts);
     }
 
+	build_patterns(root_ignores);
     if (opts.search_stream) {
         search_stream(stdin, "");
     } else {

@@ -45,8 +45,10 @@ ignores *init_ignore(const ignores *parent, const char *dirname, const size_t di
     ig->names_len = 0;
     ig->slash_names = NULL;
     ig->slash_names_len = 0;
+	ig->patterns = nullptr;
     ig->regexes = NULL;
     ig->regexes_len = 0;
+	ig->slash_patterns = nullptr;
     ig->slash_regexes = NULL;
     ig->slash_regexes_len = 0;
     ig->dirname = dirname;
@@ -84,6 +86,13 @@ void cleanup_ignore(ignores *ig) {
     if (ig->abs_path) {
         free(ig->abs_path);
     }
+	
+	for(size_t i = 0; i < ig->regexes_len; ++i) delete ig->patterns[i];
+	delete [] ig->patterns;
+
+	for(size_t i = 0; i < ig->slash_regexes_len; ++i) delete ig->slash_patterns[i];
+	delete [] ig->slash_patterns;
+
     free(ig);
 }
 
@@ -312,19 +321,27 @@ static int path_ignore_search(const ignores *ig, const char *path, const char *f
         }
 
         for (i = 0; i < ig->slash_regexes_len; i++) {
-            if (fnmatch(ig->slash_regexes[i], slash_filename, fnmatch_flags) == 0) {
+            if (ig->slash_patterns[i]->HasFullMatch(slash_filename, strlen(slash_filename))) {
                 log_debug("file %s ignored because name matches slash regex pattern %s", slash_filename, ig->slash_regexes[i]);
                 return 1;
             }
+//            if (fnmatch(ig->slash_regexes[i], slash_filename, fnmatch_flags) == 0) {
+//                log_debug("file %s ignored because name matches slash regex pattern %s", slash_filename, ig->slash_regexes[i]);
+//                return 1;
+//            }
             log_debug("pattern %s doesn't match slash file %s", ig->slash_regexes[i], slash_filename);
         }
     }
 
     for (i = 0; i < ig->regexes_len; i++) {
-        if (fnmatch(ig->regexes[i], filename, fnmatch_flags) == 0) {
+        if (ig->patterns[i]->HasFullMatch(filename, strlen(filename))) {
             log_debug("file %s ignored because name matches regex pattern %s", filename, ig->regexes[i]);
             return 1;
         }
+//        if (fnmatch(ig->regexes[i], filename, fnmatch_flags) == 0) {
+//            log_debug("file %s ignored because name matches regex pattern %s", filename, ig->regexes[i]);
+//            return 1;
+//        }
         log_debug("pattern %s doesn't match file %s", ig->regexes[i], filename);
     }
 
@@ -416,4 +433,29 @@ int filename_filter(const char *path, const struct dirent *dir, void *baton) {
 
     log_debug("%s not ignored", filename);
     return 1;
+}
+
+void build_patterns(ignores *ig)
+{
+	if(ig->regexes_len)
+	{
+		ig->patterns = new Javelin::Pattern*[ig->regexes_len];
+		for(size_t i = 0; i < ig->regexes_len; ++i)
+		{
+			try {
+				ig->patterns[i] = new Javelin::Pattern(Javelin::String{ig->regexes[i]}, Javelin::Pattern::USE_GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
+			} catch (...) {
+				ig->patterns[i] = new Javelin::Pattern(Javelin::String::EMPTY_STRING, Javelin::Pattern::USE_GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
+			}
+		}
+	}
+	
+	if(ig->slash_regexes_len)
+	{
+		ig->slash_patterns = new Javelin::Pattern*[ig->slash_regexes_len];
+		for(size_t i = 0; i < ig->slash_regexes_len; ++i)
+		{
+			ig->slash_patterns[i] = new Javelin::Pattern(Javelin::String{ig->slash_regexes[i]}, Javelin::Pattern::USE_GLOB_SYNTAX | Javelin::Pattern::ANCHORED);
+		}
+	}	
 }

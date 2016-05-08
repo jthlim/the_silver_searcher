@@ -527,6 +527,8 @@ static void update_ignores(ignores* ig, dirent **dir_list, int results, const ch
 	if (opts.path_to_agignore) {
 		load_ignore_patterns(ig, opts.path_to_agignore);
 	}
+
+	build_patterns(ig);
 }
 
 /* TODO: Append matches to some data structure instead of just printing them out.
