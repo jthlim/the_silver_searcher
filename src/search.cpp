@@ -20,6 +20,7 @@ void search_buf(const char *buf, const size_t buf_len,
         binary = is_binary((const void *)buf, buf_len);
         if (binary) {
             log_debug("File %s is binary. Skipping...", dir_full_path);
+//			printf("File %s is binary. Skipping...\n", dir_full_path);
             return;
         }
     }
@@ -439,7 +440,7 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 	
 	if (!is_directory(path, dir)) {
 		if(opts.file_search_pattern) {
-			if(opts.file_search_pattern->HasPartialMatch(dir_full_path, strlen(dir_full_path))) {
+			if(opts.file_search_pattern->HasPartialMatch(dir->d_name, dir->d_namlen)) {
 				log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
 				pthread_mutex_lock(&print_mtx);
 				print_path(dir_full_path, opts.path_sep);
@@ -448,6 +449,12 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 				goto cleanup;
 			} else {
 				log_debug("Skipping %s due to file_search_regex.", dir_full_path);
+				goto cleanup;
+			}
+		}
+		
+		if(opts.binary_ignore_pattern) {
+			if(opts.binary_ignore_pattern->HasPartialMatch(dir->d_name, dir->d_namlen)) {
 				goto cleanup;
 			}
 		}

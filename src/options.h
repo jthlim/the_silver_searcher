@@ -69,6 +69,7 @@ typedef struct {
     int skip_vcs_ignores;
 	Javelin::Pattern* vcs_ignore_pattern;
     int search_binary_files;
+	Javelin::Pattern* binary_ignore_pattern;
     int search_zip_files;
     int search_hidden_files;
     int search_stream; /* true if tail -F blah | ag */
