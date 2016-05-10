@@ -732,12 +732,12 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
 	if(!opts.skip_vcs_ignores)
 	{
 		static const Javelin::String IGNORE_PATTERN = JS("\\.agignore|\\.gitignore|\\.hgignore|\\.svn|(\\.git)");
-		opts.vcs_ignore_pattern = new Javelin::Pattern(IGNORE_PATTERN, Javelin::Pattern::ANCHORED);
+		opts.vcs_ignore_pattern = new Javelin::Pattern(IGNORE_PATTERN, Javelin::Pattern::ANCHORED | Javelin::Pattern::PREFER_NO_SCAN);
 	}
 	else
 	{
 		static const Javelin::String IGNORE_PATTERN = JS("\\.agignore");
-		opts.vcs_ignore_pattern = new Javelin::Pattern(IGNORE_PATTERN, Javelin::Pattern::ANCHORED);
+		opts.vcs_ignore_pattern = new Javelin::Pattern(IGNORE_PATTERN, Javelin::Pattern::ANCHORED | Javelin::Pattern::PREFER_NO_SCAN);
 	}
 
     char *path = NULL;
