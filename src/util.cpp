@@ -340,7 +340,7 @@ int is_binary(const void *buf, const size_t buf_len) {
         return 0;
     }
 
-    if (buf_len >= 5 && strncmp((const char*) buf, "%PDF-", 5) == 0) {
+    if (buf_len >= 5 && memcmp(buf, "%PDF-", 5) == 0) {
         /* PDF. This is binary. */
         return 1;
     }
@@ -353,14 +353,14 @@ int is_binary(const void *buf, const size_t buf_len) {
     for (i = 0; i < total_bytes; i++) {
         if ((buf_c[i] < 7 || buf_c[i] > 14) && (buf_c[i] < 32 || buf_c[i] > 127)) {
             /* UTF-8 detection */
-            if (buf_c[i] > 193 && buf_c[i] < 224 && i + 1 < total_bytes) {
+            if (buf_c[i] >= 192 && buf_c[i] < 224 && i + 1 < total_bytes) {
                 i++;
-                if (buf_c[i] > 127 && buf_c[i] < 192) {
+                if (buf_c[i] >= 128 && buf_c[i] < 192) {
                     continue;
                 }
-            } else if (buf_c[i] > 223 && buf_c[i] < 240 && i + 2 < total_bytes) {
+            } else if (buf_c[i] >= 224 && buf_c[i] < 240 && i + 2 < total_bytes) {
                 i++;
-                if (buf_c[i] > 127 && buf_c[i] < 192 && buf_c[i + 1] > 127 && buf_c[i + 1] < 192) {
+                if (buf_c[i] >= 128 && buf_c[i] < 192 && buf_c[i + 1] > 127 && buf_c[i + 1] < 192) {
                     i++;
                     continue;
                 }
@@ -369,12 +369,13 @@ int is_binary(const void *buf, const size_t buf_len) {
             /* Disk IO is so slow that it's worthwhile to do this calculation after every suspicious byte. */
             /* This is true even on a 1.6Ghz Atom with an Intel 320 SSD. */
             /* Read at least 32 bytes before making a decision */
-            if (i >= 32 && (suspicious_bytes * 100) / total_bytes > 10) {
+            if (i >= 32 && suspicious_bytes * 10 > total_bytes) {
                 return 1;
             }
         }
     }
-    if ((suspicious_bytes * 100) / total_bytes > 10) {
+	
+    if (suspicious_bytes * 10 > total_bytes) {
         return 1;
     }
 
