@@ -328,7 +328,7 @@ static int path_ignore_search(const ignores *ig, const char *path, const char *f
 		}
     }
 
-	if(ig->slash_regexes_len) {
+	if(ig->regexes_len) {
 		size_t filename_len = strlen(filename);
 		for (i = 0; i < ig->regexes_len; i++) {
 			if (ig->patterns[i]->HasFullMatch(filename, filename_len)) {
