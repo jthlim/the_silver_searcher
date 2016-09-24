@@ -15,7 +15,7 @@
 
 int first_file_match = 1;
 
-const char *color_reset = "\033[0m\033[K";
+const char *color_reset = "\033[m\033[K";
 
 const char *truncate_marker = " [...]";
 

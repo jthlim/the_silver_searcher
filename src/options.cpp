@@ -18,9 +18,9 @@
 
 cli_options opts;
 
-const char *color_line_number = "\033[1;33m";	 /* bold yellow */
+const char *color_line_number = "\033[34m";	 /* bold blue */
 const char *color_match = "\033[30;48;5;229m";      /* black with yellow background */
-const char *color_path = "\033[1;32m";        	/* bold green */
+const char *color_path = "\033[32m";        	/* bold green */
 
 /* TODO: try to obey out_fd? */
 void usage(void) {
