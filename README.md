@@ -8,6 +8,7 @@ A code searching tool similar to `ack`, with a focus on speed.
 * Integrate Javelin regular expression engine instead of PCRE
 * Avoid boyer moore special case which was also slowing things down
 * Avoid trying to open ignore files that don't exist
+* Memory map usage has a file size threshold
 
 How much faster is it? 
 

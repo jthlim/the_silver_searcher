@@ -232,10 +232,12 @@ void search_stream(FILE *stream, const char *path) {
 void search_file(const char *file_full_path) {
     int fd;
     off_t f_len = 0;
-    char *buf = NULL;
     struct stat statbuf;
     int rv = 0;
     FILE *fp = NULL;
+	char stackBuf[2048];
+	char *buf = stackBuf;
+	const size_t MMAP_THRESHOLD = 256*1024;
 
     fd = open(file_full_path, O_RDONLY);
     if (fd < 0) {
@@ -280,37 +282,46 @@ void search_file(const char *file_full_path) {
         goto cleanup;
     }
 
-#ifdef _WIN32
-    {
-        HANDLE hmmap = CreateFileMapping(
-            (HANDLE)_get_osfhandle(fd), 0, PAGE_READONLY, 0, f_len, NULL);
-        buf = (char *)MapViewOfFile(hmmap, FILE_SHARE_READ, 0, 0, f_len);
-        if (hmmap != NULL)
-            CloseHandle(hmmap);
-    }
-    if (buf == NULL) {
-        FormatMessageA(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                FORMAT_MESSAGE_FROM_SYSTEM |
-                FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, GetLastError(), 0, (void *)&buf, 0, NULL);
-        log_err("File %s failed to load: %s.", file_full_path, buf);
-        LocalFree((void *)buf);
-        goto cleanup;
-    }
-#else
-    buf = (char*) mmap(0, f_len, PROT_READ, MAP_SHARED, fd, 0);
-    if (buf == MAP_FAILED) {
-        log_err("File %s failed to load: %s.", file_full_path, strerror(errno));
-        goto cleanup;
-    }
-#if HAVE_MADVISE
-    madvise(buf, f_len, MADV_SEQUENTIAL);
-#elif HAVE_POSIX_FADVISE
-    posix_fadvise(fd, 0, f_len, POSIX_MADV_SEQUENTIAL);
-#endif
-#endif
-
+	if(f_len < MMAP_THRESHOLD)
+	{
+		if(f_len > sizeof(stackBuf)) buf = (char*) malloc(f_len);
+		read(fd, buf, f_len);
+	}
+	else
+	{
+	
+	#ifdef _WIN32
+		{
+			HANDLE hmmap = CreateFileMapping(
+				(HANDLE)_get_osfhandle(fd), 0, PAGE_READONLY, 0, f_len, NULL);
+			buf = (char *)MapViewOfFile(hmmap, FILE_SHARE_READ, 0, 0, f_len);
+			if (hmmap != NULL)
+				CloseHandle(hmmap);
+		}
+		if (buf == NULL) {
+			FormatMessageA(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER |
+					FORMAT_MESSAGE_FROM_SYSTEM |
+					FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL, GetLastError(), 0, (void *)&buf, 0, NULL);
+			log_err("File %s failed to load: %s.", file_full_path, buf);
+			LocalFree((void *)buf);
+			goto cleanup;
+		}
+	#else
+		buf = (char*) mmap(0, f_len, PROT_READ, MAP_SHARED, fd, 0);
+		if (buf == MAP_FAILED) {
+			log_err("File %s failed to load: %s.", file_full_path, strerror(errno));
+			goto cleanup;
+		}
+	#if HAVE_MADVISE
+		madvise(buf, f_len, MADV_SEQUENTIAL);
+	#elif HAVE_POSIX_FADVISE
+		posix_fadvise(fd, 0, f_len, POSIX_MADV_SEQUENTIAL);
+	#endif
+	#endif
+	}
+	
     if (opts.search_zip_files) {
         ag_compression_type zip_type = is_zipped(buf, f_len);
         if (zip_type != AG_NO_COMPRESSION) {
@@ -330,12 +341,19 @@ void search_file(const char *file_full_path) {
 
 cleanup:
 
-    if (buf != NULL) {
-#ifdef _WIN32
-        UnmapViewOfFile(buf);
-#else
-        munmap(buf, f_len);
-#endif
+    if (buf != stackBuf) {
+		if(f_len < MMAP_THRESHOLD)
+		{
+			free(buf);
+		}
+		else
+		{
+	#ifdef _WIN32
+			UnmapViewOfFile(buf);
+	#else
+			munmap(buf, f_len);
+	#endif
+		}
     }
     if (fd != -1) {
         close(fd);
