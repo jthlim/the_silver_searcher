@@ -10,6 +10,8 @@
 #define SVN_PROP_IGNORE "svn:ignore"
 
 struct ignores {
+	mutable Javelin::Atomic<size_t> reference_count;
+	
     char **extensions; /* File extensions to ignore */
     size_t extensions_len;
 

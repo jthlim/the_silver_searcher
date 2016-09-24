@@ -45,12 +45,18 @@ ignores *init_ignore(const ignores *parent, const char *dirname, const size_t di
     ig->slash_regexes_len = 0;
     ig->dirname = dirname;
     ig->dirname_len = dirname_len;
+	ig->reference_count = 1;
 
     if (parent && is_empty(parent) && parent->parent) {
         ig->parent = parent->parent;
     } else {
         ig->parent = parent;
     }
+	
+	if(ig->parent)
+	{
+		ig->parent->reference_count++;
+	}
 
     if (parent && parent->abs_path_len > 0) {
         ag_asprintf(&(ig->abs_path), "%s/%s", parent->abs_path, dirname);
@@ -70,22 +76,25 @@ void cleanup_ignore(ignores *ig) {
     if (ig == NULL) {
         return;
     }
-    free_strings(ig->extensions, ig->extensions_len);
-    free_strings(ig->names, ig->names_len);
-    free_strings(ig->slash_names, ig->slash_names_len);
-    free_strings(ig->regexes, ig->regexes_len);
-    free_strings(ig->slash_regexes, ig->slash_regexes_len);
-    if (ig->abs_path) {
-        free(ig->abs_path);
-    }
-	
-	for(size_t i = 0; i < ig->regexes_len; ++i) delete ig->patterns[i];
-	delete [] ig->patterns;
+	if(--ig->reference_count == 0)
+	{
+		free_strings(ig->extensions, ig->extensions_len);
+		free_strings(ig->names, ig->names_len);
+		free_strings(ig->slash_names, ig->slash_names_len);
+		free_strings(ig->regexes, ig->regexes_len);
+		free_strings(ig->slash_regexes, ig->slash_regexes_len);
+		if (ig->abs_path) {
+			free(ig->abs_path);
+		}
+		
+		for(size_t i = 0; i < ig->regexes_len; ++i) delete ig->patterns[i];
+		delete [] ig->patterns;
 
-	for(size_t i = 0; i < ig->slash_regexes_len; ++i) delete ig->slash_patterns[i];
-	delete [] ig->slash_patterns;
+		for(size_t i = 0; i < ig->slash_regexes_len; ++i) delete ig->slash_patterns[i];
+		delete [] ig->slash_patterns;
 
-    free(ig);
+		free(ig);
+	}
 }
 
 void add_ignore_pattern(ignores *ig, const char *pattern) {

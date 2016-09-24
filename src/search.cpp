@@ -364,7 +364,7 @@ class SearchFileTask : public Javelin::Task
 {
 public:
 	SearchFileTask(const char* aPath) : path(aPath) { }
-	~SearchFileTask() { delete path; }
+	~SearchFileTask() { free((void*) path); }
 	
 private:
 	virtual void RunTask() override
@@ -375,6 +375,35 @@ private:
 	const char* path;
 };
 
+class SearchDirectoryTask : public Javelin::Task
+{
+public:
+	SearchDirectoryTask(ignores* aig,
+						const char* abase_path,
+						const char* apath,
+						const int adepth,
+						dev_t aoriginal_dev)
+	: ig(aig), base_path(abase_path), path(apath), depth(adepth), original_dev(aoriginal_dev) { }
+	~SearchDirectoryTask() {
+		cleanup_ignore(ig);
+		free((void*) base_path);
+		free((void*) path);
+	}
+	
+private:
+	virtual void RunTask() override
+	{
+		search_dir(ig, base_path, path, depth, original_dev);
+	}
+	
+	ignores* ig;
+	const char* base_path;
+	const char* path;
+	const int depth;
+	dev_t original_dev;
+};
+
+Javelin::Mutex symloop_mutex;
 static int check_symloop_enter(const char *path, dirkey_t *outkey) {
 #ifdef _WIN32
     return SYMLOOP_OK;
@@ -396,6 +425,7 @@ static int check_symloop_enter(const char *path, dirkey_t *outkey) {
     outkey->dev = buf.st_dev;
     outkey->ino = buf.st_ino;
 
+	Javelin::Sentry<Javelin::Mutex> sentry(symloop_mutex);
     HASH_FIND(hh, symhash, outkey, sizeof(dirkey_t), item_found);
     if (item_found) {
         return SYMLOOP_LOOP;
@@ -489,9 +519,19 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 #else
 			child_ig = init_ignore(scandir_baton.ig, dir->d_name, strlen(dir->d_name));
 #endif
-			search_dir(child_ig, scandir_baton.base_path, dir_full_path, depth + 1,
-					   original_dev);
-			cleanup_ignore(child_ig);
+			
+			Javelin::ThreadPool& threadPool = Javelin::ThreadPool::GetSharedThreadPool();
+			if(threadPool.HasEmptyTaskList())
+			{
+				search_dir(child_ig, scandir_baton.base_path, dir_full_path, depth + 1,
+						   original_dev);
+				cleanup_ignore(child_ig);
+			}
+			else
+			{
+				threadPool.AddTask(new SearchDirectoryTask(child_ig, strdup(scandir_baton.base_path), dir_full_path, depth+1, original_dev));
+				dir_full_path = NULL;
+			}
 		} else {
 			if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {
 				/*
@@ -508,9 +548,7 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 	
 cleanup:
 	free(dir);
-	dir = NULL;
 	free(dir_full_path);
-	dir_full_path = NULL;
 }
 
 static void update_ignores(ignores* ig, dirent **dir_list, int results, const char* path)
@@ -614,6 +652,6 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
 	}
 
 search_dir_cleanup:
-    check_symloop_leave(&current_dirkey);
+//    check_symloop_leave(&current_dirkey);
     free(dir_list);
 }
