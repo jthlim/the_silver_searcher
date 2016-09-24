@@ -494,17 +494,8 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 #endif
 			
 			Javelin::ThreadPool& threadPool = Javelin::ThreadPool::GetSharedThreadPool();
-			if(threadPool.HasEmptyTaskList())
-			{
-				search_dir(child_ig, scandir_baton.base_path, dir_full_path, depth + 1,
-						   original_dev);
-				cleanup_ignore(child_ig);
-			}
-			else
-			{
-				threadPool.AddTask(new SearchDirectoryTask(child_ig, strdup(scandir_baton.base_path), dir_full_path, depth+1, original_dev));
-				dir_full_path = NULL;
-			}
+			threadPool.AddTask(new SearchDirectoryTask(child_ig, strdup(scandir_baton.base_path), dir_full_path, depth+1, original_dev));
+			dir_full_path = NULL;
 		} else {
 			if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {
 				/*
