@@ -19,7 +19,7 @@
 		839798DA1C81742C000A261C /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798CB1C81742C000A261C /* search.cpp */; };
 		839798DB1C81742C000A261C /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798CF1C81742C000A261C /* util.cpp */; };
 		839798E21C817701000A261C /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 839798E11C817701000A261C /* libz.tbd */; };
-		83E9BFD61CCCAE3500F008CC /* libJavelinPattern.OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 83E9BFC31CCCAE1500F008CC /* libJavelinPattern.OSX.a */; };
+		83E9BFD61CCCAE3500F008CC /* libJavelinPattern.macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 83E9BFC31CCCAE1500F008CC /* libJavelinPattern.macOS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -143,7 +143,6 @@
 		839798CA1C81742C000A261C /* scandir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scandir.h; path = ../../src/scandir.h; sourceTree = "<group>"; };
 		839798CB1C81742C000A261C /* search.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = search.cpp; path = ../../src/search.cpp; sourceTree = "<group>"; };
 		839798CC1C81742C000A261C /* search.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = search.h; path = ../../src/search.h; sourceTree = "<group>"; };
-		839798CE1C81742C000A261C /* uthash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = uthash.h; path = ../../src/uthash.h; sourceTree = "<group>"; };
 		839798CF1C81742C000A261C /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = ../../src/util.cpp; sourceTree = "<group>"; };
 		839798D01C81742C000A261C /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = ../../src/util.h; sourceTree = "<group>"; };
 		839798E11C817701000A261C /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -155,7 +154,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				83E9BFD61CCCAE3500F008CC /* libJavelinPattern.OSX.a in Frameworks */,
+				83E9BFD61CCCAE3500F008CC /* libJavelinPattern.macOS.a in Frameworks */,
 				839798E21C817701000A261C /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -203,7 +202,6 @@
 				839798CA1C81742C000A261C /* scandir.h */,
 				839798CB1C81742C000A261C /* search.cpp */,
 				839798CC1C81742C000A261C /* search.h */,
-				839798CE1C81742C000A261C /* uthash.h */,
 				839798CF1C81742C000A261C /* util.cpp */,
 				839798D01C81742C000A261C /* util.h */,
 				837A03691CB2CC9700A5E1E6 /* libpcre.a */,
@@ -216,7 +214,7 @@
 			children = (
 				83E9BFBF1CCCAE1500F008CC /* libJavelin.iOS.a */,
 				83E9BFC11CCCAE1500F008CC /* libJavelin.OSX.a */,
-				83E9BFC31CCCAE1500F008CC /* libJavelinPattern.OSX.a */,
+				83E9BFC31CCCAE1500F008CC /* libJavelinPattern.macOS.a */,
 				83E9BFC51CCCAE1500F008CC /* iOS Unit Tests.app */,
 				83E9BFC71CCCAE1500F008CC /* OSX Unit Tests */,
 				83E9BFC91CCCAE1500F008CC /* FbxConvert */,
@@ -298,14 +296,14 @@
 		83E9BFC11CCCAE1500F008CC /* libJavelin.OSX.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libJavelin.OSX.a;
+			path = libJavelin.macOS.a;
 			remoteRef = 83E9BFC01CCCAE1500F008CC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		83E9BFC31CCCAE1500F008CC /* libJavelinPattern.OSX.a */ = {
+		83E9BFC31CCCAE1500F008CC /* libJavelinPattern.macOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libJavelinPattern.OSX.a;
+			path = libJavelinPattern.macOS.a;
 			remoteRef = 83E9BFC21CCCAE1500F008CC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -319,7 +317,7 @@
 		83E9BFC71CCCAE1500F008CC /* OSX Unit Tests */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
-			path = "OSX Unit Tests";
+			path = "macOS Unit Tests";
 			remoteRef = 83E9BFC61CCCAE1500F008CC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
