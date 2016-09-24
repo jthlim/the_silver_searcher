@@ -29,7 +29,6 @@
 #include "print.h"
 #include "util.h"
 #include "decompress.h"
-#include "uthash.h"
 
 extern size_t alpha_skip_lookup[256];
 extern size_t *find_skip_lookup;
@@ -43,17 +42,15 @@ extern pthread_mutex_t stats_mtx;
 #define SYMLOOP_OK (0)
 #define SYMLOOP_LOOP (1)
 
-typedef struct {
+typedef struct dirkey {
     dev_t dev;
     ino_t ino;
+	
+	bool operator==(const dirkey& a) const { return dev == a.dev && ino == a.ino; }
+	friend size_t GetHash(const dirkey& a) {
+		return Javelin::Crc32(&a, sizeof(a));
+	}
 } dirkey_t;
-
-typedef struct {
-    dirkey_t key;
-    UT_hash_handle hh;
-} symdir_t;
-
-extern symdir_t *symhash;
 
 void search_buf(const char *buf, const size_t buf_len,
                 const char *dir_full_path);

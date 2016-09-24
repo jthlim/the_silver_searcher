@@ -7,8 +7,6 @@ size_t *find_skip_lookup;
 pthread_mutex_t print_mtx;
 pthread_mutex_t stats_mtx;
 
-symdir_t *symhash;
-
 void search_buf(const char *buf, const size_t buf_len,
                 const char *dir_full_path) {
     int binary = -1; /* 1 = yes, 0 = no, -1 = don't know */
@@ -403,14 +401,12 @@ private:
 	dev_t original_dev;
 };
 
-Javelin::Mutex symloop_mutex;
+Javelin::Lock<Javelin::OpenHashSet<dirkey_t>> symloop_set(128);
 static int check_symloop_enter(const char *path, dirkey_t *outkey) {
 #ifdef _WIN32
     return SYMLOOP_OK;
 #else
     struct stat buf;
-    symdir_t *item_found = NULL;
-    symdir_t *new_item = NULL;
 
     memset(outkey, 0, sizeof(dirkey_t));
     outkey->dev = 0;
@@ -422,41 +418,16 @@ static int check_symloop_enter(const char *path, dirkey_t *outkey) {
         return SYMLOOP_ERROR;
     }
 
-    outkey->dev = buf.st_dev;
-    outkey->ino = buf.st_ino;
-
-	Javelin::Sentry<Javelin::Mutex> sentry(symloop_mutex);
-    HASH_FIND(hh, symhash, outkey, sizeof(dirkey_t), item_found);
-    if (item_found) {
-        return SYMLOOP_LOOP;
-    }
-
-    new_item = (symdir_t *)ag_malloc(sizeof(symdir_t));
-    memcpy(&new_item->key, outkey, sizeof(dirkey_t));
-    HASH_ADD(hh, symhash, key, sizeof(dirkey_t), new_item);
-    return SYMLOOP_OK;
-#endif
-}
-
-static int check_symloop_leave(dirkey_t *dirkey) {
-#ifdef _WIN32
-    return SYMLOOP_OK;
-#else
-    symdir_t *item_found = NULL;
-
-    if (dirkey->dev == 0 && dirkey->ino == 0) {
-        return SYMLOOP_ERROR;
-    }
-
-    HASH_FIND(hh, symhash, dirkey, sizeof(dirkey_t), item_found);
-    if (!item_found) {
-        log_err("item not found! weird stuff...\n");
-        return SYMLOOP_ERROR;
-    }
-
-    HASH_DELETE(hh, symhash, item_found);
-    free(item_found);
-    return SYMLOOP_OK;
+	outkey->dev = buf.st_dev;
+	outkey->ino = buf.st_ino;
+	if(symloop_set->Put(*outkey))
+	{
+		return SYMLOOP_OK;
+	}
+	else
+	{
+		return SYMLOOP_LOOP;
+	}
 #endif
 }
 
@@ -652,6 +623,5 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
 	}
 
 search_dir_cleanup:
-//    check_symloop_leave(&current_dirkey);
     free(dir_list);
 }

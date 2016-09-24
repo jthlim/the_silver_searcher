@@ -116,7 +116,6 @@ int main(int argc, char **argv) {
 #endif
         for (i = 0; paths[i] != NULL; i++) {
             log_debug("searching path %s for %s", paths[i], opts.query);
-            symhash = NULL;
             ignores *ig = init_ignore(root_ignores, "", 0);
             struct stat s = {.st_dev = 0 };
 #ifndef _WIN32
