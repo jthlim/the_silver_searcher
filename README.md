@@ -9,6 +9,7 @@ A code searching tool similar to `ack`, with a focus on speed.
 * Avoid boyer moore special case which was also slowing things down
 * Avoid trying to open ignore files that don't exist
 * Memory map usage has a file size threshold
+* Directory processing improved
 
 How much faster is it? 
 
