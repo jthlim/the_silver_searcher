@@ -272,7 +272,7 @@ void realloc_matches(match_t **matches, size_t *matches_size, size_t matches_len
 }
 
 void compile_study(Javelin::Pattern **re, char *q, const int pcre_opts, const int study_opts) {
-	int options = 0;
+	int options = Javelin::Pattern::AUTO_CLUSTER;
 	if(pcre_opts & PCRE_CASELESS) options |= Javelin::Pattern::IGNORE_CASE;
 	if(pcre_opts & PCRE_DOTALL) options |= Javelin::Pattern::DOTALL;
 	if(pcre_opts & PCRE_MULTILINE) options |= Javelin::Pattern::MULTILINE;
