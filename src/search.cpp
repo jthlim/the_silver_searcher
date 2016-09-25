@@ -5,7 +5,51 @@ size_t alpha_skip_lookup[256];
 size_t *find_skip_lookup;
 
 pthread_mutex_t print_mtx;
-pthread_mutex_t stats_mtx;
+
+
+class SearchThreadWorker : public Javelin::WorkerThread
+{
+private:
+	typedef WorkerThread Inherited;
+	
+public:
+	virtual void Run()
+	{
+		threadLocalStats = &localStats;
+		Inherited::Run();
+	}
+	
+	ag_stats localStats;
+};
+
+class SearchThreadWorkerFactory : public Javelin::IWorkerThreadFactory
+{
+public:
+	virtual Javelin::WorkerThread* CreateWorkerThread() const final
+	{
+		return new SearchThreadWorker;
+	}
+	
+	static const SearchThreadWorkerFactory instance;
+};
+
+const SearchThreadWorkerFactory SearchThreadWorkerFactory::instance{};
+
+SearchThreadPool::SearchThreadPool()
+: Javelin::ThreadPool(Javelin::Machine::GetNumberOfProcessors(), &SearchThreadWorkerFactory::instance)
+{
+}
+
+void SearchThreadPool::AccumulateStats(ag_stats& stats) const
+{
+	for(Javelin::WorkerThread* worker : threadList)
+	{
+		stats.AccumulateStats(((SearchThreadWorker*) worker)->localStats);
+	}
+}
+
+Javelin::ThreadLocal<ag_stats*> threadLocalStats;
+SearchThreadPool SearchThreadPool::instance;
 
 void search_buf(const char *buf, const size_t buf_len,
                 const char *dir_full_path) {
@@ -164,14 +208,13 @@ multiline_done:
     }
 
     if (opts.stats) {
-        pthread_mutex_lock(&stats_mtx);
+		ag_stats& stats = *threadLocalStats;
         stats.total_bytes += buf_len;
         stats.total_files++;
         stats.total_matches += matches_len;
         if (matches_len > 0) {
             stats.total_file_matches++;
         }
-        pthread_mutex_unlock(&stats_mtx);
     }
 
     if (matches_len > 0) {
@@ -481,7 +524,7 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 		}
 		
 		log_debug("%s adding to work queue", dir_full_path);
-		Javelin::ThreadPool::GetSharedThreadPool().AddTask(new SearchFileTask(dir_full_path));
+		SearchThreadPool::instance.AddTask(new SearchFileTask(dir_full_path));
 		dir_full_path = NULL;
 	} else if (opts.recurse_dirs) {
 		if (depth < opts.max_search_depth || opts.max_search_depth == -1) {
@@ -493,8 +536,7 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 			child_ig = init_ignore(scandir_baton.ig, dir->d_name, strlen(dir->d_name));
 #endif
 			
-			Javelin::ThreadPool& threadPool = Javelin::ThreadPool::GetSharedThreadPool();
-			threadPool.AddTask(new SearchDirectoryTask(child_ig, strdup(scandir_baton.base_path), dir_full_path, depth+1, original_dev));
+			SearchThreadPool::instance.AddTask(new SearchDirectoryTask(child_ig, strdup(scandir_baton.base_path), dir_full_path, depth+1, original_dev));
 			dir_full_path = NULL;
 		} else {
 			if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {

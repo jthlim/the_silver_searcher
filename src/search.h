@@ -34,8 +34,16 @@ extern size_t alpha_skip_lookup[256];
 extern size_t *find_skip_lookup;
 
 extern pthread_mutex_t print_mtx;
-extern pthread_mutex_t stats_mtx;
 
+class SearchThreadPool : public Javelin::ThreadPool
+{
+public:
+	SearchThreadPool();
+	
+	void AccumulateStats(ag_stats& stats) const;
+	
+	static SearchThreadPool instance;
+};
 
 /* For symlink loop detection */
 #define SYMLOOP_ERROR (-1)

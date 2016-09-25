@@ -33,17 +33,24 @@ typedef struct {
     size_t end;   /* and where it ends */
 } match_t;
 
-typedef struct {
+struct ag_stats {
+	ag_stats() : total_bytes(0), total_files(0), total_matches(0), total_file_matches(0) { }
+	
     long total_bytes;
     long total_files;
     long total_matches;
     long total_file_matches;
-    struct timeval time_start;
-    struct timeval time_end;
-} ag_stats;
+	
+	void AccumulateStats(ag_stats& other)
+	{
+		total_bytes += other.total_bytes;
+		total_files += other.total_files;
+		total_matches += other.total_matches;
+		total_file_matches += other.total_file_matches;
+	}
+};
 
-
-extern ag_stats stats;
+extern Javelin::ThreadLocal<ag_stats*> threadLocalStats;
 
 typedef const char *(*strncmp_fp)(const char *, const char *, const size_t, const size_t, const size_t[], const size_t *);
 

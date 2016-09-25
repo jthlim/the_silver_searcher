@@ -25,6 +25,8 @@ typedef struct {
     int id;
 } worker_t;
 
+ag_stats mainThreadStats = { };
+
 int main(int argc, char **argv) {
     char **base_paths = NULL;
     char **paths = NULL;
@@ -32,6 +34,8 @@ int main(int argc, char **argv) {
     int pcre_opts = PCRE_MULTILINE;
     int study_opts = 0;
     worker_t *workers = NULL;
+	struct timeval time_start;
+	struct timeval time_end;
 
 #ifdef HAVE_PLEDGE
     if (pledge("stdio rpath proc exec", NULL) == -1) {
@@ -47,8 +51,8 @@ int main(int argc, char **argv) {
     parse_options(argc, argv, &base_paths, &paths);
     //log_debug("PCRE Version: %s", pcre_version());
     if (opts.stats) {
-        memset(&stats, 0, sizeof(stats));
-        gettimeofday(&(stats.time_start), NULL);
+        gettimeofday(&time_start, NULL);
+		threadLocalStats = &mainThreadStats;
     }
 
 //#ifdef USE_PCRE_JIT
@@ -60,9 +64,6 @@ int main(int argc, char **argv) {
 //#endif
 
     if (pthread_mutex_init(&print_mtx, NULL)) {
-        die("pthread_mutex_init failed!");
-    }
-    if (opts.stats && pthread_mutex_init(&stats_mtx, NULL)) {
         die("pthread_mutex_init failed!");
     }
 
@@ -130,17 +131,23 @@ int main(int argc, char **argv) {
             cleanup_ignore(ig);
         }
 		
-		Javelin::ThreadPool::GetSharedThreadPool().WaitForAllTasksToComplete();
+		SearchThreadPool::instance.WaitForAllTasksToComplete();
     }
 
     if (opts.stats) {
-        gettimeofday(&(stats.time_end), NULL);
-        double time_diff = ((long)stats.time_end.tv_sec * 1000000 + stats.time_end.tv_usec) -
-                           ((long)stats.time_start.tv_sec * 1000000 + stats.time_start.tv_usec);
+		ag_stats& stats = *threadLocalStats;
+		SearchThreadPool::instance.AccumulateStats(stats);
+		
+        gettimeofday(&time_end, NULL);
+        double time_diff = ((long)time_end.tv_sec * 1000000 + time_end.tv_usec) -
+                           ((long)time_start.tv_sec * 1000000 + time_start.tv_usec);
         time_diff /= 1000000;
-        printf("%ld matches\n%ld files contained matches\n%ld files searched\n%ld bytes searched\n%f seconds\n",
+        printf("%ld matches\n"
+			   "%ld files contained matches\n"
+			   "%ld files searched\n"
+			   "%ld bytes searched\n"
+			   "%f seconds\n",
                stats.total_matches, stats.total_file_matches, stats.total_files, stats.total_bytes, time_diff);
-        pthread_mutex_destroy(&stats_mtx);
     }
 
     if (opts.pager) {

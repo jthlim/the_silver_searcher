@@ -10,10 +10,13 @@ A code searching tool similar to `ack`, with a focus on speed.
 * Avoid trying to open ignore files that don't exist
 * Memory map usage has a file size threshold
 * Directory processing improved
+* Fix --stats from being stupidly slow
 
 How much faster is it? 
 
 For simple short literal searches, expect ~2x performance
+
+For large directories, expect at least 4x performance
 
 For regular expressions, you can expect 2-5x in many cases, with some results over 100x
 
