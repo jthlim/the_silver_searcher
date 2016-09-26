@@ -66,7 +66,7 @@ void print_binary_file_matches(const char *path) {
 
 void print_file_matches(const char *path, const char *buf, const size_t buf_len, const match_t matches[], const size_t matches_len) {
     size_t line = 1;
-    char **context_prev_lines = NULL;
+    const char **context_prev_lines = NULL;
     size_t prev_line = 0;
     size_t last_prev_line = 0;
     size_t prev_line_offset = 0;
@@ -99,7 +99,8 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
         }
     }
 
-    context_prev_lines = (char**) ag_calloc(sizeof(char *), (opts.before + 1));
+    context_prev_lines = (const char**) ag_calloc(sizeof(char *), (opts.before + 1));
+	context_prev_lines[0] = buf;
 
     for (i = 0; i <= buf_len && (cur_match < matches_len || lines_since_last_match <= opts.after); i++) {
         if (cur_match < matches_len && i == matches[cur_match].start) {
@@ -120,13 +121,15 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                 }
 
                 for (j = (opts.before - lines_to_print); j < opts.before; j++) {
-                    prev_line = (last_prev_line + j) % opts.before;
+                    prev_line = (last_prev_line + j) % (opts.before + 1);
                     if (context_prev_lines[prev_line] != NULL) {
                         if (opts.print_path == PATH_PRINT_EACH_LINE) {
                             print_path(path, ':');
                         }
                         print_line_number(line - (opts.before - j), sep);
-                        fprintf(out_fd, "%s\n", context_prev_lines[prev_line]);
+						size_t next_line = prev_line + 1;
+						if(next_line == opts.before+1) next_line = 0;
+						fwrite(context_prev_lines[prev_line], 1, context_prev_lines[next_line]-context_prev_lines[prev_line], out_fd);
                     }
                 }
             }
@@ -141,12 +144,8 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 
         /* We found the end of a line. */
         if ((i == buf_len || buf[i] == '\n') && opts.before > 0) {
-            if (context_prev_lines[last_prev_line] != NULL) {
-                free(context_prev_lines[last_prev_line]);
-            }
-            /* We don't want to strcpy the \n */
-            context_prev_lines[last_prev_line] = ag_strndup(&buf[prev_line_offset], i - prev_line_offset);
-            last_prev_line = (last_prev_line + 1) % opts.before;
+			context_prev_lines[last_prev_line] = &buf[i]+1;
+			if(++last_prev_line == opts.before+1) last_prev_line = 0;
         }
 
         if (i == buf_len || buf[i] == '\n') {
@@ -266,11 +265,6 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
         }
     }
 
-    for (i = 0; i < opts.before; i++) {
-        if (context_prev_lines[i] != NULL) {
-            free(context_prev_lines[i]);
-        }
-    }
     free(context_prev_lines);
 }
 
