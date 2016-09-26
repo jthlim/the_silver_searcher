@@ -106,7 +106,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
             in_a_match = TRUE;
             /* We found the start of a match */
             if (cur_match > 0 && opts.context && lines_since_last_match > (opts.before + opts.after + 1)) {
-                fprintf(out_fd, "--\n");
+                fputs("--\n", out_fd);
             }
 
             if (lines_since_last_match > 0 && opts.before > 0) {
@@ -184,13 +184,13 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                     }
 
                     if (printing_a_match && opts.color) {
-                        fprintf(out_fd, "%s", opts.color_match);
+                        fputs(opts.color_match, out_fd);
                     }
                     for (j = prev_line_offset; j <= i; j++) {
                         /* close highlight of match term */
                         if (last_printed_match < matches_len && j == matches[last_printed_match].end) {
                             if (opts.color) {
-                                fprintf(out_fd, "%s", color_reset);
+                                fputs(color_reset, out_fd);
                             }
                             printing_a_match = FALSE;
                             last_printed_match++;
@@ -223,7 +223,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                                 }
                             }
                             if (opts.color) {
-                                fprintf(out_fd, "%s", opts.color_match);
+                                fputs(opts.color_match, out_fd);
                             }
                             printing_a_match = TRUE;
                         }
@@ -238,7 +238,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                         }
                     }
                     if (printing_a_match && opts.color) {
-                        fprintf(out_fd, "%s", color_reset);
+                        fputs(color_reset, out_fd);
                     }
                 }
             } else if (lines_since_last_match <= opts.after) {
@@ -299,7 +299,7 @@ void print_column_number(const match_t matches[], size_t last_printed_match,
 
 void print_file_separator(void) {
     if (first_file_match == 0 && opts.print_break) {
-        fprintf(out_fd, "\n");
+        fputc('\n', out_fd);
     }
     first_file_match = 0;
 }
