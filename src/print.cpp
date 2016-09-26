@@ -102,9 +102,18 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
     context_prev_lines = (const char**) ag_calloc(sizeof(char *), (opts.before + 1));
 	context_prev_lines[0] = buf;
 
+	size_t search_end = matches[0].start;
+	
     for (i = 0; i <= buf_len && (cur_match < matches_len || lines_since_last_match <= opts.after); i++) {
+		// Ugly and not ideal, but better than searching one byte at a time..
+		// This whole routine needs to be rewritten
+		const char* next_relevant = (const char*) memchr(buf+i, '\n', search_end-i);
+		if(next_relevant) i = next_relevant - buf;
+		else i = search_end;
+		
         if (cur_match < matches_len && i == matches[cur_match].start) {
             in_a_match = TRUE;
+			search_end = matches[cur_match].end;
             /* We found the start of a match */
             if (cur_match > 0 && opts.context && lines_since_last_match > (opts.before + opts.after + 1)) {
                 fputs("--\n", out_fd);
@@ -140,16 +149,19 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
             /* We found the end of a match. */
             cur_match++;
             in_a_match = FALSE;
+			if(cur_match < matches_len) search_end = matches[cur_match].start;
+			else search_end = buf_len;
         }
 
         /* We found the end of a line. */
-        if ((i == buf_len || buf[i] == '\n') && opts.before > 0) {
-			context_prev_lines[last_prev_line] = &buf[i]+1;
-			if(++last_prev_line == opts.before+1) last_prev_line = 0;
-        }
+        if (i == buf_len || buf[i] == '\n' ) {
+			if(opts.before > 0)
+			{
+				context_prev_lines[last_prev_line] = &buf[i]+1;
+				if(++last_prev_line == opts.before+1) last_prev_line = 0;
+			}
 
-        if (i == buf_len || buf[i] == '\n') {
-            if (lines_since_last_match == 0) {
+			if (lines_since_last_match == 0) {
                 if (opts.print_path == PATH_PRINT_EACH_LINE && !opts.search_stream) {
                     print_path(path, ':');
                 }
