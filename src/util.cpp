@@ -270,15 +270,12 @@ void realloc_matches(match_t **matches, size_t *matches_size, size_t matches_len
     *matches = (match_t*) ag_realloc(*matches, *matches_size * sizeof(match_t));
 }
 
-void compile_study(Javelin::Pattern **re, char *q, const int pcre_opts, const int study_opts) {
-	int options = Javelin::Pattern::AUTO_CLUSTER;
-	if(pcre_opts & PCRE_CASELESS) options |= Javelin::Pattern::IGNORE_CASE;
-	if(pcre_opts & PCRE_DOTALL) options |= Javelin::Pattern::DOTALL;
-	if(pcre_opts & PCRE_MULTILINE) options |= Javelin::Pattern::MULTILINE;
+void compile_study(Javelin::Pattern **re, char *q, const int options, const int study_opts) {
+	int javelin_options = Javelin::Pattern::AUTO_CLUSTER | options;
 	
 	Javelin::String s{q};
 	try {
-		*re = new Javelin::Pattern(s, options);
+		*re = new Javelin::Pattern(s, javelin_options);
 	}
 	catch(const Javelin::PatternException& exception) {
 		static const char *const PATTERN_EXCEPTION_TEXT[] =

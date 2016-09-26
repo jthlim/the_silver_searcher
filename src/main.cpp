@@ -1,4 +1,3 @@
-#include <pcre.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,7 +30,7 @@ int main(int argc, char **argv) {
     char **base_paths = NULL;
     char **paths = NULL;
     int i;
-    int pcre_opts = PCRE_MULTILINE;
+	int javelin_opts = Javelin::Pattern::MULTILINE;
     int study_opts = 0;
     worker_t *workers = NULL;
 	struct timeval time_start;
@@ -49,19 +48,10 @@ int main(int argc, char **argv) {
     out_fd = stdout;
 
     parse_options(argc, argv, &base_paths, &paths);
-    //log_debug("PCRE Version: %s", pcre_version());
     if (opts.stats) {
         gettimeofday(&time_start, NULL);
 		threadLocalStats = &mainThreadStats;
     }
-
-//#ifdef USE_PCRE_JIT
-//    int has_jit = 0;
-//    pcre_config(PCRE_CONFIG_JIT, &has_jit);
-//    if (has_jit) {
-//        study_opts |= PCRE_STUDY_JIT_COMPILE;
-//    }
-//#endif
 
     if (pthread_mutex_init(&print_mtx, NULL)) {
         die("pthread_mutex_init failed!");
@@ -89,7 +79,7 @@ int main(int argc, char **argv) {
         }
     } else {
         if (opts.casing == CASE_INSENSITIVE) {
-            pcre_opts |= PCRE_CASELESS;
+			javelin_opts |= Javelin::Pattern::IGNORE_CASE;
         }
         if (opts.word_regexp) {
             char *word_regexp_query;
@@ -98,7 +88,7 @@ int main(int argc, char **argv) {
             opts.query = word_regexp_query;
             opts.query_len = strlen(opts.query);
         }
-        compile_study(&opts.pattern, opts.query, pcre_opts, study_opts);
+        compile_study(&opts.pattern, opts.query, javelin_opts, study_opts);
     }
 	
 	if(!opts.search_binary_files)

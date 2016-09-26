@@ -4,8 +4,6 @@
 #include <getopt.h>
 #include <sys/stat.h>
 
-#include <pcre.h>
-
 #include "Javelin/Javelin.h"
 
 #define DEFAULT_AFTER_LEN 2
