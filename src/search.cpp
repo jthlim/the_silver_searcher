@@ -474,7 +474,7 @@ static int check_symloop_enter(const char *path, dirkey_t *outkey) {
 #endif
 }
 
-void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const char* path, dev_t original_dev, int depth, bool isLast)
+void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const char* path, dev_t original_dev, int depth)
 {
 	char *dir_full_path = NULL;
 	if(!filename_filter(path, dir, &scandir_baton)) goto cleanup;
@@ -536,16 +536,8 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 			child_ig = init_ignore(scandir_baton.ig, dir->d_name, strlen(dir->d_name));
 #endif
 			
-			if(isLast)
-			{
-				search_dir(child_ig, scandir_baton.base_path, dir_full_path, depth+1, original_dev);
-				cleanup_ignore(child_ig);
-			}
-			else
-			{
-				SearchThreadPool::instance.AddTask(new SearchDirectoryTask(child_ig, strdup(scandir_baton.base_path), dir_full_path, depth+1, original_dev));
-				dir_full_path = NULL;
-			}
+			SearchThreadPool::instance.AddTask(new SearchDirectoryTask(child_ig, strdup(scandir_baton.base_path), dir_full_path, depth+1, original_dev));
+			dir_full_path = NULL;
 		} else {
 			if (opts.max_search_depth == DEFAULT_MAX_SEARCH_DEPTH) {
 				/*
@@ -662,7 +654,7 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
     scandir_baton.base_path_len = base_path ? strlen(base_path) : 0;
 
 	for (i = 0; i < results; i++) {
-		process_dirent(dir_list[i], scandir_baton, path, original_dev, depth, i == results-1);
+		process_dirent(dir_list[i], scandir_baton, path, original_dev, depth);
 	}
 
 search_dir_cleanup:
