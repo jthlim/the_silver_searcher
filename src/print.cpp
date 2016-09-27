@@ -104,7 +104,8 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 
 	size_t search_end = matches[0].start;
 	
-    for (i = 0; i <= buf_len && (cur_match < matches_len || lines_since_last_match <= opts.after); i++) {
+	i = 0;
+	while(true) {
 		// Ugly and not ideal, but better than searching one byte at a time..
 		// This whole routine needs to be rewritten
 		const char* next_relevant = (const char*) memchr(buf+i, '\n', search_end-i);
@@ -112,6 +113,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 		else i = search_end;
 		
         if (cur_match < matches_len && i == matches[cur_match].start) {
+		do_next_match:
             in_a_match = TRUE;
 			search_end = matches[cur_match].end;
             /* We found the start of a match */
@@ -149,7 +151,10 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
             /* We found the end of a match. */
             cur_match++;
             in_a_match = FALSE;
-			if(cur_match < matches_len) search_end = matches[cur_match].start;
+			if(cur_match < matches_len) {
+				search_end = matches[cur_match].start;
+				if(search_end == i) goto do_next_match;
+			}
 			else search_end = buf_len;
         }
 
@@ -161,118 +166,127 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 				if(++last_prev_line == opts.before+1) last_prev_line = 0;
 			}
 
-			if (lines_since_last_match == 0) {
-                if (opts.print_path == PATH_PRINT_EACH_LINE && !opts.search_stream) {
-                    print_path(path, ':');
-                }
-                if (opts.ackmate) {
-                    /* print headers for ackmate to parse */
-                    print_line_number(line, ';');
-                    for (; last_printed_match < cur_match; last_printed_match++) {
-                        /* Don't print negative offsets. This isn't quite right, but not many people use --ackmate */
-                        long start = (long)(matches[last_printed_match].start - prev_line_offset);
-                        if (start < 0) {
-                            start = 0;
-                        }
-                        fprintf(out_fd, "%li %li",
-                                start,
-                                (long)(matches[last_printed_match].end - matches[last_printed_match].start));
-                        last_printed_match == cur_match - 1 ? fputc(':', out_fd) : fputc(',', out_fd);
-                    }
-                    print_line(buf, i, prev_line_offset);
-                } else if (opts.vimgrep) {
-                    for (; last_printed_match < cur_match; last_printed_match++) {
-                        print_path(path, sep);
-                        print_line_number(line, sep);
-                        print_column_number(matches, last_printed_match, prev_line_offset, sep);
-                        print_line(buf, i, prev_line_offset);
-                    }
-                } else {
-                    print_line_number(line, ':');
-                    int printed_match = FALSE;
-                    if (opts.column) {
-                        print_column_number(matches, last_printed_match, prev_line_offset, ':');
-                    }
+			if (JUNLIKELY(lines_since_last_match <= opts.after))
+			{
+				if (lines_since_last_match == 0) {
+					if (opts.print_path == PATH_PRINT_EACH_LINE && !opts.search_stream) {
+						print_path(path, ':');
+					}
+					if (opts.ackmate) {
+						/* print headers for ackmate to parse */
+						print_line_number(line, ';');
+						for (; last_printed_match < cur_match; last_printed_match++) {
+							/* Don't print negative offsets. This isn't quite right, but not many people use --ackmate */
+							long start = (long)(matches[last_printed_match].start - prev_line_offset);
+							if (start < 0) {
+								start = 0;
+							}
+							fprintf(out_fd, "%li %li",
+									start,
+									(long)(matches[last_printed_match].end - matches[last_printed_match].start));
+							last_printed_match == cur_match - 1 ? fputc(':', out_fd) : fputc(',', out_fd);
+						}
+						print_line(buf, i, prev_line_offset);
+					} else if (opts.vimgrep) {
+						for (; last_printed_match < cur_match; last_printed_match++) {
+							print_path(path, sep);
+							print_line_number(line, sep);
+							print_column_number(matches, last_printed_match, prev_line_offset, sep);
+							print_line(buf, i, prev_line_offset);
+						}
+					} else {
+						print_line_number(line, ':');
+						int printed_match = FALSE;
+						if (opts.column) {
+							print_column_number(matches, last_printed_match, prev_line_offset, ':');
+						}
 
-                    if (printing_a_match && opts.color) {
-                        fputs(opts.color_match, out_fd);
-                    }
-                    for (j = prev_line_offset; j <= i; j++) {
-                        /* close highlight of match term */
-                        if (last_printed_match < matches_len && j == matches[last_printed_match].end) {
-                            if (opts.color) {
-                                fputs(color_reset, out_fd);
-                            }
-                            printing_a_match = FALSE;
-                            last_printed_match++;
-                            printed_match = TRUE;
-                            if (opts.only_matching) {
-                                fputc('\n', out_fd);
-                            }
-                        }
-                        /* skip remaining characters if truncation width exceeded, needs to be done
-                         * before highlight opening */
-                        if (j < buf_len && opts.width > 0 && j - prev_line_offset >= opts.width) {
-                            if (j < i) {
-                                fputs(truncate_marker, out_fd);
-                            }
-                            fputc('\n', out_fd);
+						if (printing_a_match && opts.color) {
+							fputs(opts.color_match, out_fd);
+						}
+						for (j = prev_line_offset; j <= i; j++) {
+							/* close highlight of match term */
+							if (last_printed_match < matches_len && j == matches[last_printed_match].end) {
+								if (opts.color) {
+									fputs(color_reset, out_fd);
+								}
+								printing_a_match = FALSE;
+								last_printed_match++;
+								printed_match = TRUE;
+								if (opts.only_matching) {
+									fputc('\n', out_fd);
+								}
+							}
+							/* skip remaining characters if truncation width exceeded, needs to be done
+							 * before highlight opening */
+							if (j < buf_len && opts.width > 0 && j - prev_line_offset >= opts.width) {
+								if (j < i) {
+									fputs(truncate_marker, out_fd);
+								}
+								fputc('\n', out_fd);
 
-                            /* prevent any more characters or highlights */
-                            j = i;
-                            last_printed_match = matches_len;
-                        }
-                        /* open highlight of match term */
-                        if (last_printed_match < matches_len && j == matches[last_printed_match].start) {
-                            if (opts.only_matching && printed_match) {
-                                if (opts.print_path == PATH_PRINT_EACH_LINE) {
-                                    print_path(path, ':');
-                                }
-                                print_line_number(line, ':');
-                                if (opts.column) {
-                                    print_column_number(matches, last_printed_match, prev_line_offset, ':');
-                                }
-                            }
-                            if (opts.color) {
-                                fputs(opts.color_match, out_fd);
-                            }
-                            printing_a_match = TRUE;
-                        }
-                        /* Don't print the null terminator */
-                        if (j < buf_len) {
-                            /* if only_matching is set, print only matches and newlines */
-                            if (!opts.only_matching || printing_a_match) {
-                                if (opts.width == 0 || j - prev_line_offset < opts.width) {
-                                    fputc(buf[j], out_fd);
-                                }
-                            }
-                        }
-                    }
-                    if (printing_a_match && opts.color) {
-                        fputs(color_reset, out_fd);
-                    }
-                }
-            } else if (lines_since_last_match <= opts.after) {
-                /* print context after matching line */
-                if (opts.print_path == PATH_PRINT_EACH_LINE) {
-                    print_path(path, ':');
-                }
-                print_line_number(line, sep);
+								/* prevent any more characters or highlights */
+								j = i;
+								last_printed_match = matches_len;
+							}
+							/* open highlight of match term */
+							if (last_printed_match < matches_len && j == matches[last_printed_match].start) {
+								if (opts.only_matching && printed_match) {
+									if (opts.print_path == PATH_PRINT_EACH_LINE) {
+										print_path(path, ':');
+									}
+									print_line_number(line, ':');
+									if (opts.column) {
+										print_column_number(matches, last_printed_match, prev_line_offset, ':');
+									}
+								}
+								if (opts.color) {
+									fputs(opts.color_match, out_fd);
+								}
+								printing_a_match = TRUE;
+							}
+							/* Don't print the null terminator */
+							if (j < buf_len) {
+								/* if only_matching is set, print only matches and newlines */
+								if (!opts.only_matching || printing_a_match) {
+									if (opts.width == 0 || j - prev_line_offset < opts.width) {
+										fputc(buf[j], out_fd);
+									}
+								}
+							}
+						}
+						if (printing_a_match && opts.color) {
+							fputs(color_reset, out_fd);
+						}
+					}
+				} else /* if (lines_since_last_match <= opts.after) */ {
+					/* print context after matching line */
+					if (opts.print_path == PATH_PRINT_EACH_LINE) {
+						print_path(path, ':');
+					}
+					print_line_number(line, sep);
 
-                for (j = prev_line_offset; j < i; j++) {
-                    fputc(buf[j], out_fd);
-                }
-                fputc('\n', out_fd);
-            }
+					for (j = prev_line_offset; j < i; j++) {
+						fputc(buf[j], out_fd);
+					}
+					fputc('\n', out_fd);
+				}
+			}
 
-            prev_line_offset = i + 1; /* skip the newline */
+			/* File doesn't end with a newline. Print one so the output is pretty. */
+			if (i == buf_len) {
+				if(buf[buf_len - 1] != '\n' && !opts.search_stream) {
+					fputc('\n', out_fd);
+				}
+				break;
+			}
+
+			++i;	 /* skip the newline */
+            prev_line_offset = i;
             line++;
-            if (!in_a_match && lines_since_last_match < INT_MAX) {
+            if (!in_a_match) {
                 lines_since_last_match++;
-            }
-            /* File doesn't end with a newline. Print one so the output is pretty. */
-            if (i == buf_len && buf[i - 1] != '\n' && !opts.search_stream) {
-                fputc('\n', out_fd);
+				if(cur_match >= matches_len && lines_since_last_match >= opts.after) break;
             }
         }
     }
