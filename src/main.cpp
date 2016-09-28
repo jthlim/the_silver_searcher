@@ -19,11 +19,6 @@
 #include "search.h"
 #include "util.h"
 
-typedef struct {
-    pthread_t thread;
-    int id;
-} worker_t;
-
 ag_stats mainThreadStats = { };
 
 int main(int argc, char **argv) {
@@ -32,7 +27,6 @@ int main(int argc, char **argv) {
     int i;
 	int javelin_opts = Javelin::Pattern::MULTILINE;
     int study_opts = 0;
-    worker_t *workers = NULL;
 	struct timeval time_start;
 	struct timeval time_end;
 
@@ -42,6 +36,7 @@ int main(int argc, char **argv) {
     }
 #endif
 
+	setbuf(stdout, nullptr);
     set_log_level(LOG_LEVEL_WARN);
 
     root_ignores = init_ignore(NULL, "", 0);
@@ -143,18 +138,19 @@ int main(int argc, char **argv) {
     if (opts.pager) {
         pclose(out_fd);
     }
-    cleanup_options();
-    pthread_mutex_destroy(&print_mtx);
-    cleanup_ignore(root_ignores);
-    free(workers);
-    for (i = 0; paths[i] != NULL; i++) {
-        free(paths[i]);
-        free(base_paths[i]);
-    }
-    free(base_paths);
-    free(paths);
-    if (find_skip_lookup) {
-        free(find_skip_lookup);
-    }
-    return !opts.match_found;
+
+//    cleanup_options();
+//    pthread_mutex_destroy(&print_mtx);
+//    cleanup_ignore(root_ignores);
+//    for (i = 0; paths[i] != NULL; i++) {
+//        free(paths[i]);
+//        free(base_paths[i]);
+//    }
+//    free(base_paths);
+//    free(paths);
+//    if (find_skip_lookup) {
+//        free(find_skip_lookup);
+//    }
+//    return !opts.match_found;
+	exit(!opts.match_found);
 }
