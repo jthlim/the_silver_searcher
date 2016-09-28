@@ -309,18 +309,6 @@ static int path_ignore_search(const ignores *ig, const char *path, const char *f
             return 1;
         }
 
-        for (i = 0; i < ig->names_len; i++) {
-            char *pos = strstr(slash_filename, ig->names[i]);
-            if (pos == slash_filename || (pos && *(pos - 1) == '/')) {
-                pos += strlen(ig->names[i]);
-                if (*pos == '\0' || *pos == '/') {
-                    log_debug("file %s ignored because path somewhere matches name %s", slash_filename, ig->names[i]);
-                    return 1;
-                }
-            }
-            log_debug("pattern %s doesn't match path %s", ig->names[i], slash_filename);
-        }
-
 		if(ig->slash_regexes_len) {
 			size_t slash_filename_len = strlen(slash_filename);
 			for (i = 0; i < ig->slash_regexes_len; i++) {
@@ -332,7 +320,7 @@ static int path_ignore_search(const ignores *ig, const char *path, const char *f
 //					log_debug("file %s ignored because name matches slash regex pattern %s", slash_filename, ig->slash_regexes[i]);
 //					return 1;
 //				}
-				log_debug("pattern %s doesn't match slash file %s", ig->slash_regexes[i], slash_filename);
+//				log_debug("pattern %s doesn't match slash file %s", ig->slash_regexes[i], slash_filename);
 			}
 		}
     }
@@ -348,7 +336,7 @@ static int path_ignore_search(const ignores *ig, const char *path, const char *f
 //				log_debug("file %s ignored because name matches regex pattern %s", filename, ig->regexes[i]);
 //				return 1;
 //			}
-			log_debug("pattern %s doesn't match file %s", ig->regexes[i], filename);
+//			log_debug("pattern %s doesn't match file %s", ig->regexes[i], filename);
 		}
 	}
 

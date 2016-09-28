@@ -321,6 +321,42 @@ void compile_study(Javelin::Pattern **re, char *q, const int options, const int 
 }
 
 /* This function is very hot. It's called on every file. */
+static const bool DO_UTF8_CHECK[256] =
+{
+	true, true, true, true, true, true, false, false,
+	false, false, false, false, false, false, false, true,
+	true, true, true, true, true, true, true, true,			// 16
+	true, true, true, true, true, true, true, true,
+	false, false, false, false, false, false, false, false,	// 32
+	false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, // 48
+	false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, // 64
+	false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, // 80
+	false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, // 96
+	false, false, false, false, false, false, false, false,
+	false, false, false, false, false, false, false, false, // 112
+	false, false, false, false, false, false, false, false,
+	true, true, true, true, true, true, true, true,			// 128
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+	true, true, true, true, true, true, true, true,
+};
+
 int is_binary(const void *buf, const size_t buf_len) {
     size_t suspicious_bytes = 0;
     size_t total_bytes = buf_len > 512 ? 512 : buf_len;
@@ -347,7 +383,7 @@ int is_binary(const void *buf, const size_t buf_len) {
 	}
 	
     for (i = 0; i < total_bytes; i++) {
-        if ((buf_c[i] < 7 || buf_c[i] > 14) && (buf_c[i] < 32 || buf_c[i] > 127)) {
+        if (DO_UTF8_CHECK[buf_c[i]]) {
             /* UTF-8 detection */
             if (buf_c[i] >= 192 && buf_c[i] < 224 && i + 1 < total_bytes) {
                 i++;

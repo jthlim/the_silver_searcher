@@ -425,6 +425,7 @@ public:
 						const int adepth,
 						dev_t aoriginal_dev)
 	: ig(aig), base_path(abase_path), path(apath), depth(adepth), original_dev(aoriginal_dev) { }
+	
 	~SearchDirectoryTask() {
 		cleanup_ignore(ig);
 		free((void*) base_path);
@@ -451,7 +452,6 @@ static int check_symloop_enter(const char *path, dirkey_t *outkey) {
 #else
     struct stat buf;
 
-    memset(outkey, 0, sizeof(dirkey_t));
     outkey->dev = 0;
     outkey->ino = 0;
 
