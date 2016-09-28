@@ -15,9 +15,8 @@
 
 int first_file_match = 1;
 
-const char *color_reset = "\033[m\033[K";
-
-const char *truncate_marker = " [...]";
+const char color_reset[] = "\033[m\033[K";
+const char truncate_marker[] = " [...]\n";
 
 void print_path(const char *path, const char sep) {
     if (opts.print_path == PATH_PRINT_NOTHING && !opts.vimgrep) {
@@ -189,7 +188,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                         /* close highlight of match term */
                         if (last_printed_match < matches_len && j == matches[last_printed_match].end) {
                             if (opts.color) {
-                                fputs(color_reset, out_fd);
+                                fwrite(color_reset, 1, sizeof(color_reset)-1, out_fd);
                             }
                             printing_a_match = FALSE;
                             last_printed_match++;
@@ -202,9 +201,10 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                          * before highlight opening */
                         if (j < buf_len && opts.width > 0 && j - prev_line_offset >= opts.width) {
                             if (j < i) {
-                                fputs(truncate_marker, out_fd);
-                            }
-                            fputc('\n', out_fd);
+								fwrite(truncate_marker, 1, sizeof(truncate_marker)-1, out_fd);
+							} else {
+	                            fputc('\n', out_fd);
+							}
 
                             /* prevent any more characters or highlights */
                             j = i;
@@ -237,7 +237,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                         }
                     }
                     if (printing_a_match && opts.color) {
-                        fputs(color_reset, out_fd);
+						fwrite(color_reset, 1, sizeof(color_reset)-1, out_fd);
                     }
                 }
             } else if (lines_since_last_match <= opts.after) {

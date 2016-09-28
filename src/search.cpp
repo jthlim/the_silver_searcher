@@ -145,11 +145,9 @@ void search_buf(const char *buf, const size_t buf_len,
 				int offset_vector[2];
 				offset_vector[0] = int(intptr_t(results[0]) - intptr_t(buf));
 				offset_vector[1] = int(intptr_t(results[1]) - intptr_t(buf));
-                log_debug("Regex match found. File %s, offset %i bytes.", dir_full_path, offset_vector[0]);
                 buf_offset = offset_vector[1];
                 if (offset_vector[0] == offset_vector[1]) {
                     ++buf_offset;
-                    log_debug("Regex match is of length zero. Advancing offset one byte.");
                 }
 
                 realloc_matches(&matches, &matches_size, matches_len + matches_spare);
