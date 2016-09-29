@@ -720,11 +720,10 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         // use default query
         opts.query = ag_strdup(".");
     }
-    opts.query_len = strlen(opts.query);
 
     log_debug("Query is %s", opts.query);
 
-    if (opts.query_len == 0) {
+    if (opts.query[0] == '\0') {
         log_err("Error: No query. What do you want to search for?");
         exit(1);
     }

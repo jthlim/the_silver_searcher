@@ -157,13 +157,13 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
         }
 
         /* We found the end of a line. */
-        if ((i == buf_len || buf[i] == '\n') && opts.before > 0) {
-			if(++last_prev_line == opts.before+1) last_prev_line = 0;
-			context_prev_lines[last_prev_line] = &buf[i]+1;
-        }
-
         if (i == buf_len || buf[i] == '\n') {
-            if (lines_since_last_match == 0) {
+			if(opts.before > 0) {
+				if(++last_prev_line == opts.before+1) last_prev_line = 0;
+				context_prev_lines[last_prev_line] = &buf[i]+1;
+			}
+
+			if (lines_since_last_match == 0) {
                 if (opts.print_path == PATH_PRINT_EACH_LINE && !opts.search_stream) {
                     print_path(path, ':');
                 }

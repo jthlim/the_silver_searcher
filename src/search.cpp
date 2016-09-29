@@ -4,9 +4,6 @@
 size_t alpha_skip_lookup[256];
 size_t *find_skip_lookup;
 
-pthread_mutex_t print_mtx;
-
-
 class SearchThreadWorker : public Javelin::WorkerThread
 {
 private:
@@ -87,117 +84,65 @@ void search_buf(const char *buf, const size_t buf_len,
         matches_spare = 0;
     }
 
-    if (!opts.literal && opts.query_len == 1 && opts.query[0] == '.') {
-        matches_size = 1;
-        matches = (match_t*) ag_malloc(matches_size * sizeof(match_t));
-        matches[0].start = 0;
-        matches[0].end = buf_len;
-        matches_len = 1;
-    } else if (opts.literal) {
-        const char *match_ptr = buf;
-        strncmp_fp ag_strnstr_fp = get_strstr(opts.casing);
+	const void* results[opts.pattern->GetNumberOfCaptures()*2];
+	if (opts.multiline) {
+		while (buf_offset < buf_len &&
+			   opts.pattern->PartialMatch(buf, buf_len, results, buf_offset)) {
+			int offset_vector[2];
+			offset_vector[0] = int(intptr_t(results[0]) - intptr_t(buf));
+			offset_vector[1] = int(intptr_t(results[1]) - intptr_t(buf));
+			buf_offset = offset_vector[1];
+			if (offset_vector[0] == offset_vector[1]) {
+				++buf_offset;
+			}
 
-        while (buf_offset < buf_len) {
-            match_ptr = ag_strnstr_fp(match_ptr, opts.query, buf_len - buf_offset, opts.query_len, alpha_skip_lookup, find_skip_lookup);
-            if (match_ptr == NULL) {
-                break;
-            }
+			realloc_matches(&matches, &matches_size, matches_len + matches_spare);
 
-            if (opts.word_regexp) {
-                const char *start = match_ptr;
-                const char *end = match_ptr + opts.query_len;
+			matches[matches_len].start = offset_vector[0];
+			matches[matches_len].end = offset_vector[1];
+			matches_len++;
 
-                /* Check whether both start and end of the match lie on a word
-                 * boundary
-                 */
-                if ((start == buf ||
-                     is_wordchar(*(start - 1)) != opts.literal_starts_wordchar) &&
-                    (end == buf + buf_len ||
-                     is_wordchar(*end) != opts.literal_ends_wordchar)) {
-                    /* It's a match */
-                } else {
-                    /* It's not a match */
-                    match_ptr += opts.query_len;
-                    buf_offset = end - buf;
-                    continue;
-                }
-            }
-
-            realloc_matches(&matches, &matches_size, matches_len + matches_spare);
-
-            matches[matches_len].start = match_ptr - buf;
-            matches[matches_len].end = matches[matches_len].start + opts.query_len;
-            buf_offset = matches[matches_len].end;
-            log_debug("Match found. File %s, offset %lu bytes.", dir_full_path, matches[matches_len].start);
-            matches_len++;
-            match_ptr += opts.query_len;
-
-            if (opts.max_matches_per_file > 0 && matches_len >= opts.max_matches_per_file) {
-                log_err("Too many matches in %s. Skipping the rest of this file.", dir_full_path);
-                break;
-            }
-        }
-    } else {
-		const void* results[opts.pattern->GetNumberOfCaptures()*2];
-        if (opts.multiline) {
-            while (buf_offset < buf_len &&
-				   opts.pattern->PartialMatch(buf, buf_len, results, buf_offset)) {
+			if (opts.max_matches_per_file > 0 && matches_len >= opts.max_matches_per_file) {
+				log_err("Too many matches in %s. Skipping the rest of this file.", dir_full_path);
+				break;
+			}
+		}
+	} else {
+		while (buf_offset < buf_len) {
+			const char *line;
+			size_t line_len = buf_getline(&line, buf, buf_len, buf_offset);
+			if (!line) {
+				break;
+			}
+			size_t line_offset = 0;
+			while (line_offset < line_len) {
+				if(!opts.pattern->PartialMatch(line, line_len, results, line_offset)) break;
 				int offset_vector[2];
 				offset_vector[0] = int(intptr_t(results[0]) - intptr_t(buf));
 				offset_vector[1] = int(intptr_t(results[1]) - intptr_t(buf));
-                buf_offset = offset_vector[1];
-                if (offset_vector[0] == offset_vector[1]) {
-                    ++buf_offset;
-                }
 
-                realloc_matches(&matches, &matches_size, matches_len + matches_spare);
+				size_t line_to_buf = buf_offset + line_offset;
+				log_debug("Regex match found. File %s, offset %i bytes.", dir_full_path, offset_vector[0]);
+				line_offset = offset_vector[1];
+				if (offset_vector[0] == offset_vector[1]) {
+					++line_offset;
+					log_debug("Regex match is of length zero. Advancing offset one byte.");
+				}
 
-                matches[matches_len].start = offset_vector[0];
-                matches[matches_len].end = offset_vector[1];
-                matches_len++;
+				realloc_matches(&matches, &matches_size, matches_len + matches_spare);
 
-                if (opts.max_matches_per_file > 0 && matches_len >= opts.max_matches_per_file) {
-                    log_err("Too many matches in %s. Skipping the rest of this file.", dir_full_path);
-                    break;
-                }
-            }
-        } else {
-            while (buf_offset < buf_len) {
-                const char *line;
-                size_t line_len = buf_getline(&line, buf, buf_len, buf_offset);
-                if (!line) {
-                    break;
-                }
-                size_t line_offset = 0;
-                while (line_offset < line_len) {
-					if(!opts.pattern->PartialMatch(line, line_len, results, line_offset)) break;
-					int offset_vector[2];
-					offset_vector[0] = int(intptr_t(results[0]) - intptr_t(buf));
-					offset_vector[1] = int(intptr_t(results[1]) - intptr_t(buf));
+				matches[matches_len].start = offset_vector[0] + line_to_buf;
+				matches[matches_len].end = offset_vector[1] + line_to_buf;
+				matches_len++;
 
-					size_t line_to_buf = buf_offset + line_offset;
-                    log_debug("Regex match found. File %s, offset %i bytes.", dir_full_path, offset_vector[0]);
-                    line_offset = offset_vector[1];
-                    if (offset_vector[0] == offset_vector[1]) {
-                        ++line_offset;
-                        log_debug("Regex match is of length zero. Advancing offset one byte.");
-                    }
-
-                    realloc_matches(&matches, &matches_size, matches_len + matches_spare);
-
-                    matches[matches_len].start = offset_vector[0] + line_to_buf;
-                    matches[matches_len].end = offset_vector[1] + line_to_buf;
-                    matches_len++;
-
-                    if (opts.max_matches_per_file > 0 && matches_len >= opts.max_matches_per_file) {
-                        log_err("Too many matches in %s. Skipping the rest of this file.", dir_full_path);
-                        goto multiline_done;
-                    }
-                }
-                buf_offset += line_len + 1;
-            }
-        }
-    }
+				if (opts.max_matches_per_file > 0 && matches_len >= opts.max_matches_per_file) {
+					log_err("Too many matches in %s. Skipping the rest of this file.", dir_full_path);
+					goto multiline_done;
+				}
+			}
+			buf_offset += line_len + 1;
+		}
+	}
 
 multiline_done:
 
@@ -219,7 +164,7 @@ multiline_done:
         if (binary == -1 && !opts.print_filename_only) {
             binary = is_binary((const void *)buf, buf_len);
         }
-        pthread_mutex_lock(&print_mtx);
+		flockfile(out_fd);
         if (opts.print_filename_only) {
             /* If the --files-without-matches or -L option is passed we should
              * not print a matching line. This option currently sets
@@ -240,7 +185,7 @@ multiline_done:
         } else {
             print_file_matches(dir_full_path, buf, buf_len, matches, matches_len);
         }
-        pthread_mutex_unlock(&print_mtx);
+		funlockfile(out_fd);
         opts.match_found = 1;
     } else if (opts.search_stream && opts.passthrough) {
         fprintf(out_fd, "%s", buf);
@@ -313,11 +258,6 @@ void search_file(const char *file_full_path) {
 
     if (f_len == 0) {
         log_debug("Skipping %s: file is empty.", file_full_path);
-        goto cleanup;
-    }
-
-    if (!opts.literal && f_len > INT_MAX) {
-        log_err("Skipping %s: pcre_exec() can't handle files larger than %i bytes.", file_full_path, INT_MAX);
         goto cleanup;
     }
 
@@ -503,9 +443,7 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 			if(opts.file_search_pattern->HasPartialMatch(dir->d_name, dir->d_namlen)) {
 				log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
 				if(opts.match_files) {
-					pthread_mutex_lock(&print_mtx);
 					print_path(dir_full_path, opts.path_sep);
-					pthread_mutex_unlock(&print_mtx);
 					opts.match_found = 1;
 					goto cleanup;
 				}

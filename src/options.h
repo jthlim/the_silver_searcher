@@ -76,7 +76,6 @@ typedef struct {
     int match_found;        /* This should totally not be in here */
     ino_t stdout_inode;
     char *query;
-    int query_len;
     char *pager;
     int paths_len;
     int parallel;

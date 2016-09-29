@@ -46,43 +46,26 @@ int main(int argc, char **argv) {
 		threadLocalStats = &mainThreadStats;
     }
 
-    if (pthread_mutex_init(&print_mtx, NULL)) {
-        die("pthread_mutex_init failed!");
-    }
-
     if (opts.casing == CASE_SMART) {
         opts.casing = is_lowercase(opts.query) ? CASE_INSENSITIVE : CASE_SENSITIVE;
     }
 
-    if (opts.literal) {
-        if (opts.casing == CASE_INSENSITIVE) {
-            /* Search routine needs the query to be lowercase */
-            char *c = opts.query;
-            for (; *c != '\0'; ++c) {
-                *c = (char)tolower(*c);
-            }
-        }
-        generate_alpha_skip(opts.query, opts.query_len, alpha_skip_lookup, opts.casing == CASE_SENSITIVE);
-        find_skip_lookup = NULL;
-        generate_find_skip(opts.query, opts.query_len, &find_skip_lookup, opts.casing == CASE_SENSITIVE);
-        if (opts.word_regexp) {
-            init_wordchar_table();
-            opts.literal_starts_wordchar = is_wordchar(opts.query[0]);
-            opts.literal_ends_wordchar = is_wordchar(opts.query[opts.query_len - 1]);
-        }
-    } else {
-        if (opts.casing == CASE_INSENSITIVE) {
-			javelin_opts |= Javelin::Pattern::IGNORE_CASE;
-        }
-        if (opts.word_regexp) {
-            char *word_regexp_query;
-            ag_asprintf(&word_regexp_query, "\\b%s\\b", opts.query);
-            free(opts.query);
-            opts.query = word_regexp_query;
-            opts.query_len = strlen(opts.query);
-        }
-        compile_pattern(&opts.pattern, opts.query, javelin_opts);
-    }
+	if (opts.casing == CASE_INSENSITIVE) {
+		javelin_opts |= Javelin::Pattern::IGNORE_CASE;
+	}
+	if (opts.literal) {
+		Javelin::String query{opts.query};
+		Javelin::String pattern = Javelin::Pattern::EscapeString(query);
+		free(opts.query);
+		opts.query = strdup(pattern.AsUtf8String());
+	}
+	if (opts.word_regexp) {
+		char *word_regexp_query;
+		ag_asprintf(&word_regexp_query, "\\b%s\\b", opts.query);
+		free(opts.query);
+		opts.query = word_regexp_query;
+	}
+	compile_pattern(&opts.pattern, opts.query, javelin_opts);
 	
 	if(!opts.search_binary_files)
 	{
@@ -138,7 +121,6 @@ int main(int argc, char **argv) {
     }
 
 //    cleanup_options();
-//    pthread_mutex_destroy(&print_mtx);
 //    cleanup_ignore(root_ignores);
 //    for (i = 0; paths[i] != NULL; i++) {
 //        free(paths[i]);
