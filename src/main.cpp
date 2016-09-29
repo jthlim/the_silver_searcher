@@ -35,7 +35,6 @@ int main(int argc, char **argv) {
     }
 #endif
 
-	setbuf(stdout, nullptr);
     set_log_level(LOG_LEVEL_WARN);
 
     root_ignores = init_ignore(NULL, "", 0);
