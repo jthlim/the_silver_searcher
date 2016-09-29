@@ -26,7 +26,6 @@ int main(int argc, char **argv) {
     char **paths = NULL;
     int i;
 	int javelin_opts = Javelin::Pattern::MULTILINE;
-    int study_opts = 0;
 	struct timeval time_start;
 	struct timeval time_end;
 
@@ -83,7 +82,7 @@ int main(int argc, char **argv) {
             opts.query = word_regexp_query;
             opts.query_len = strlen(opts.query);
         }
-        compile_study(&opts.pattern, opts.query, javelin_opts, study_opts);
+        compile_pattern(&opts.pattern, opts.query, javelin_opts);
     }
 	
 	if(!opts.search_binary_files)

@@ -270,7 +270,7 @@ void realloc_matches(match_t **matches, size_t *matches_size, size_t matches_len
     *matches = (match_t*) ag_realloc(*matches, *matches_size * sizeof(match_t));
 }
 
-void compile_study(Javelin::Pattern **re, char *q, const int options, const int study_opts) {
+void compile_pattern(Javelin::Pattern **re, char *q, const int options) {
 	int javelin_options = Javelin::Pattern::AUTO_CLUSTER | options;
 	
 	Javelin::String s{q};
@@ -629,12 +629,11 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream) {
 #endif
 
 ssize_t buf_getline(const char **line, const char *buf, const size_t buf_len, const size_t buf_offset) {
-    const char *cur = buf + buf_offset;
-    ssize_t i;
-    for (i = 0; cur[i] != '\n' && (buf_offset + i < buf_len); i++) {
-    }
-    *line = cur;
-    return i;
+	const char* search = buf + buf_offset;
+	const char* found = (const char*) memchr(search, '\n', buf_len-buf_offset);
+	*line = search;
+	if(!found) return buf_len - buf_offset;
+	else return found - search;
 }
 
 #ifndef HAVE_REALPATH

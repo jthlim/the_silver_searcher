@@ -72,7 +72,7 @@ strncmp_fp get_strstr(enum case_behavior opts);
 
 size_t invert_matches(const char *buf, const size_t buf_len, match_t matches[], size_t matches_len);
 void realloc_matches(match_t **matches, size_t *matches_size, size_t matches_len);
-void compile_study(Javelin::Pattern **re, char *q, const int options, const int study_opts);
+void compile_pattern(Javelin::Pattern **re, char *q, const int options);
 
 
 int is_binary(const void *buf, const size_t buf_len);

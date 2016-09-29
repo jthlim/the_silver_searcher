@@ -473,7 +473,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                 break;
             case 0: /* Long option */
                 if (strcmp(longopts[opt_index].name, "ackmate-dir-filter") == 0) {
-                    compile_study(&opts.ackmate_dir_pattern, optarg, 0, 0);
+                    compile_pattern(&opts.ackmate_dir_pattern, optarg, 0);
                     break;
                 } else if (strcmp(longopts[opt_index].name, "depth") == 0) {
                     opts.max_search_depth = atoi(optarg);
@@ -558,14 +558,14 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
             ag_asprintf(&file_search_regex, "\\b%s\\b", file_search_regex);
             free(old_file_search_regex);
         }
-        compile_study(&opts.file_search_pattern, file_search_regex, javelin_opts, 0);
+        compile_pattern(&opts.file_search_pattern, file_search_regex, javelin_opts);
         free(file_search_regex);
     }
 
     if (has_filetype) {
         num_exts = combine_file_extensions(ext_index, lang_num, &extensions);
         lang_regex = make_lang_regex(extensions, num_exts);
-        compile_study(&opts.file_search_pattern, lang_regex, 0, 0);
+        compile_pattern(&opts.file_search_pattern, lang_regex, 0);
     }
 
     if (extensions) {
