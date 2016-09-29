@@ -101,9 +101,19 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
     context_prev_lines = (const char**) ag_calloc(sizeof(char *), (opts.before + 1));
 	context_prev_lines[0] = buf;
 
-    for (i = 0; i <= buf_len && (cur_match < matches_len || lines_since_last_match <= opts.after); i++) {
+	size_t search_end = matches[0].start;
+	i = 0;
+	while(true) {
+		// Ugly and not ideal, but better than searching one byte at a time..
+		// This whole routine needs to be rewritten
+		const char* next_relevant = (const char*) memchr(buf+i, '\n', search_end-i);
+		if(next_relevant) i = next_relevant - buf;
+		else i = search_end;
+		
         if (cur_match < matches_len && i == matches[cur_match].start) {
+		do_next_match:
             in_a_match = TRUE;
+			search_end = matches[cur_match].end;
             /* We found the start of a match */
             if (cur_match > 0 && opts.context && lines_since_last_match > (opts.before + opts.after + 1)) {
                 fputs("--\n", out_fd);
@@ -139,6 +149,11 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
             /* We found the end of a match. */
             cur_match++;
             in_a_match = FALSE;
+			if(cur_match < matches_len) {
+				search_end = matches[cur_match].start;
+				if(search_end == i) goto do_next_match;
+			}
+			else search_end = buf_len;
         }
 
         /* We found the end of a line. */
@@ -253,18 +268,25 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                 fputc('\n', out_fd);
             }
 
-            prev_line_offset = i + 1; /* skip the newline */
+			/* File doesn't end with a newline. Print one so the output is pretty. */
+			if (i == buf_len) {
+				if(buf[buf_len - 1] != '\n' && !opts.search_stream) {
+					fputc('\n', out_fd);
+				}
+				break;
+			}
+
+			++i; /* skip the newline */
+            prev_line_offset = i;
             line++;
             if (!in_a_match && lines_since_last_match < INT_MAX) {
                 lines_since_last_match++;
-            }
-            /* File doesn't end with a newline. Print one so the output is pretty. */
-            if (i == buf_len && buf[i - 1] != '\n' && !opts.search_stream) {
-                fputc('\n', out_fd);
+				if(cur_match >= matches_len && lines_since_last_match > opts.after) break;
             }
         }
     }
 
+cleanup:
     free(context_prev_lines);
 }
 
