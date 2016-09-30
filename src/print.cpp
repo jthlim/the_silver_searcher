@@ -186,9 +186,8 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 						print_line(buf, i, prev_line_offset);
 					} else if (opts.vimgrep) {
 						for (; last_printed_match < cur_match; last_printed_match++) {
-							print_path(path, sep);
-							print_line_number(line, sep);
-							print_column_number(matches, last_printed_match, prev_line_offset, sep);
+							size_t column = matches[last_printed_match].start - prev_line_offset + 1;
+							fprintf(out_fd, "%s:%zu:%zu:", path, line, column);
 							print_line(buf, i, prev_line_offset);
 						}
 					} else {

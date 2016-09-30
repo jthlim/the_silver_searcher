@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		83059D9D1D9E8F0000DAADDC /* data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83059D9B1D9E8F0000DAADDC /* data.cpp */; };
 		839798D11C81742C000A261C /* decompress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798BB1C81742C000A261C /* decompress.cpp */; };
 		839798D21C81742C000A261C /* ignore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798BD1C81742C000A261C /* ignore.cpp */; };
 		839798D31C81742C000A261C /* lang.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839798BF1C81742C000A261C /* lang.cpp */; };
@@ -122,6 +123,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		83059D9B1D9E8F0000DAADDC /* data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data.cpp; path = ../../src/data.cpp; sourceTree = "<group>"; };
+		83059D9C1D9E8F0000DAADDC /* data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = data.h; path = ../../src/data.h; sourceTree = "<group>"; };
 		837A03691CB2CC9700A5E1E6 /* libpcre.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpcre.a; path = "../../../pcre-8.38/.libs/libpcre.a"; sourceTree = "<group>"; };
 		839798B01C817402000A261C /* ag */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ag; sourceTree = BUILT_PRODUCTS_DIR; };
 		839798BA1C81742C000A261C /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../src/config.h; sourceTree = "<group>"; };
@@ -184,6 +187,8 @@
 			isa = PBXGroup;
 			children = (
 				839798BA1C81742C000A261C /* config.h */,
+				83059D9B1D9E8F0000DAADDC /* data.cpp */,
+				83059D9C1D9E8F0000DAADDC /* data.h */,
 				839798BB1C81742C000A261C /* decompress.cpp */,
 				839798BC1C81742C000A261C /* decompress.h */,
 				839798BD1C81742C000A261C /* ignore.cpp */,
@@ -213,10 +218,10 @@
 			isa = PBXGroup;
 			children = (
 				83E9BFBF1CCCAE1500F008CC /* libJavelin.iOS.a */,
-				83E9BFC11CCCAE1500F008CC /* libJavelin.OSX.a */,
+				83E9BFC11CCCAE1500F008CC /* libJavelin.macOS.a */,
 				83E9BFC31CCCAE1500F008CC /* libJavelinPattern.macOS.a */,
 				83E9BFC51CCCAE1500F008CC /* iOS Unit Tests.app */,
-				83E9BFC71CCCAE1500F008CC /* OSX Unit Tests */,
+				83E9BFC71CCCAE1500F008CC /* macOS Unit Tests */,
 				83E9BFC91CCCAE1500F008CC /* FbxConvert */,
 				83E9BFCB1CCCAE1500F008CC /* FbxAnimConvert */,
 				83E9BFCD1CCCAE1500F008CC /* SceneEditor.app */,
@@ -293,7 +298,7 @@
 			remoteRef = 83E9BFBE1CCCAE1500F008CC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		83E9BFC11CCCAE1500F008CC /* libJavelin.OSX.a */ = {
+		83E9BFC11CCCAE1500F008CC /* libJavelin.macOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libJavelin.macOS.a;
@@ -314,7 +319,7 @@
 			remoteRef = 83E9BFC41CCCAE1500F008CC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		83E9BFC71CCCAE1500F008CC /* OSX Unit Tests */ = {
+		83E9BFC71CCCAE1500F008CC /* macOS Unit Tests */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = "macOS Unit Tests";
@@ -381,6 +386,7 @@
 				839798DB1C81742C000A261C /* util.cpp in Sources */,
 				839798D71C81742C000A261C /* print_w32.cpp in Sources */,
 				839798D21C81742C000A261C /* ignore.cpp in Sources */,
+				83059D9D1D9E8F0000DAADDC /* data.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

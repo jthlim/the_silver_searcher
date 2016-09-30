@@ -14,6 +14,7 @@
 #include <pthread.h>
 #endif
 
+#include "data.h"
 #include "log.h"
 #include "options.h"
 #include "search.h"
@@ -69,7 +70,8 @@ int main(int argc, char **argv) {
 	
 	if(!opts.search_binary_files)
 	{
-		opts.binary_ignore_pattern = new Javelin::Pattern(JS("\\.(?:bmp|png|jpg|jpeg|jp2|gif|ico|tiff|tga|pdf|psd|docx|xlsx|pptx|zip|gz|tgz|bz2|wav|ppm|pgm|mp3|mp4|o|a|dll|lib|jar)$"), Javelin::Pattern::IGNORE_CASE | Javelin::Pattern::PREFER_NO_SCAN);
+//		opts.binary_ignore_pattern = new Javelin::Pattern(JS("\\.(?:bmp|png|jpg|jpeg|jp2|gif|ico|tiff|tga|pdf|psd|docx|xlsx|pptx|zip|gz|tgz|bz2|wav|ppm|pgm|mp3|mp4|o|a|dll|lib|jar)$"), Javelin::Pattern::IGNORE_CASE | Javelin::Pattern::PREFER_NO_SCAN);
+		opts.binary_ignore_pattern = new Javelin::Pattern(BINARY_FILENAME_IGNORE_PATTERN, BINARY_FILE_IGNORE_PATTERN_LENGTH);
 	}
 
 	build_patterns(root_ignores);
@@ -132,5 +134,7 @@ int main(int argc, char **argv) {
 //        free(find_skip_lookup);
 //    }
 //    return !opts.match_found;
-	exit(!opts.match_found);
+	
+	fclose(out_fd);
+	_Exit(!opts.match_found);
 }
