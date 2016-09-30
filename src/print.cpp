@@ -17,7 +17,7 @@ int first_file_match = 1;
 
 const char color_reset[] = "\033[m\033[K";
 const char color_reset_with_newline[] = "\033[m\033[K\n";
-const char truncate_marker[] = " [...]\n";
+const char truncate_marker[] = " [...]";
 
 void print_path(const char *path, const char sep) {
     if (opts.print_path == PATH_PRINT_NOTHING && !opts.vimgrep) {
@@ -209,16 +209,12 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 							}
 							/* skip remaining characters if truncation width exceeded, needs to be done
 							 * before highlight opening */
-							if (j < buf_len && opts.width > 0 && j - prev_line_offset >= opts.width) {
-								if (j < i) {
-									fwrite(truncate_marker, 1, sizeof(truncate_marker)-1, out_fd);
-								} else {
-									fputc('\n', out_fd);
-								}
-
-								/* prevent any more characters or highlights */
-								j = i;
-								last_printed_match = matches_len;
+							if (j < i && opts.width > 0 && j - prev_line_offset >= opts.width) {
+								fwrite(truncate_marker, 1, sizeof(truncate_marker)-1, out_fd);
+								
+								last_printed_match = cur_match;
+								printing_a_match = in_a_match;
+								break;
 							}
 							/* open highlight of match term */
 							if (last_printed_match < matches_len && j == matches[last_printed_match].start) {
@@ -236,8 +232,6 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 								}
 								printing_a_match = TRUE;
 							}
-							/* Don't print the null terminator */
-							if(j == i) break;
 
 							/* if only_matching is set, print only matches and newlines */
 							size_t span_end;
@@ -255,12 +249,13 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 									}
 								}
 							}
+
+							if(j == span_end) break;
 							
 							if (!opts.only_matching || printing_a_match) {
 								fwrite(buf+j, 1, span_end-j, out_fd);
 							}
 							j = span_end;
-							
 						}
 						if (printing_a_match && opts.color) {
 							fwrite(color_reset_with_newline, 1, sizeof(color_reset_with_newline)-1, out_fd);
