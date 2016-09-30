@@ -194,6 +194,14 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 							fputs(opts.color_match, out_fd);
 						}
 						j = prev_line_offset;
+						
+						size_t span_width_end = i;
+						if(opts.width != 0) {
+							if(prev_line_offset + opts.width < span_width_end) {
+								span_width_end = prev_line_offset + opts.width;
+							}
+						}
+						
 						for(;;) {
 							/* close highlight of match term */
 							if (last_printed_match < matches_len && j == matches[last_printed_match].end) {
@@ -211,6 +219,12 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 							 * before highlight opening */
 							if (j < i && opts.width > 0 && j - prev_line_offset >= opts.width) {
 								fwrite(truncate_marker, 1, sizeof(truncate_marker)-1, out_fd);
+
+								if (printing_a_match && opts.color) {
+									fwrite(color_reset_with_newline, 1, sizeof(color_reset_with_newline)-1, out_fd);
+								} else {
+									fputc('\n', out_fd);
+								}
 								
 								last_printed_match = cur_match;
 								printing_a_match = in_a_match;
@@ -234,33 +248,27 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 							}
 
 							/* if only_matching is set, print only matches and newlines */
-							size_t span_end;
-							if(opts.width == 0) span_end = i;
-							else span_end = prev_line_offset + opts.width;
+							size_t span_end = span_width_end;
 							
 							if(last_printed_match < matches_len) {
-								if(printing_a_match) {
-									if(matches[last_printed_match].end < span_end) {
-										span_end = matches[last_printed_match].end;
-									}
-								} else {
-									if(matches[last_printed_match].start < span_end) {
-										span_end = matches[last_printed_match].start;
-									}
+								if(matches[last_printed_match][printing_a_match] < span_end) {
+									span_end = matches[last_printed_match][printing_a_match];
 								}
 							}
 
-							if(j == span_end) break;
+							if(j == span_end) {
+								if (printing_a_match && opts.color) {
+									fwrite(color_reset_with_newline, 1, sizeof(color_reset_with_newline)-1, out_fd);
+								} else {
+									fputc('\n', out_fd);
+								}
+								break;
+							}
 							
 							if (!opts.only_matching || printing_a_match) {
 								fwrite(buf+j, 1, span_end-j, out_fd);
 							}
 							j = span_end;
-						}
-						if (printing_a_match && opts.color) {
-							fwrite(color_reset_with_newline, 1, sizeof(color_reset_with_newline)-1, out_fd);
-						} else {
-							fputc('\n', out_fd);
 						}
 					}
 				} else {
