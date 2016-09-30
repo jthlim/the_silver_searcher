@@ -682,7 +682,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         opts.search_stream = 0;
     }
 
-    if (opts.vimgrep) {
+    else if (opts.vimgrep) {
         opts.color = 0;
         opts.print_break = 0;
         group = 1;
@@ -711,6 +711,12 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         }
     }
 
+    if (opts.print_path == PATH_PRINT_DEFAULT) {
+        opts.print_path = PATH_PRINT_TOP;
+    } else if (opts.print_path == PATH_PRINT_DEFAULT_EACH_LINE) {
+        opts.print_path = PATH_PRINT_EACH_LINE;
+    }
+	
     if (accepts_query && argc > 0) {
         // use the provided query
         opts.query = ag_strdup(argv[0]);

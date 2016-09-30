@@ -16,6 +16,7 @@
 int first_file_match = 1;
 
 const char color_reset[] = "\033[m\033[K";
+const char color_reset_with_newline[] = "\033[m\033[K\n";
 const char truncate_marker[] = " [...]\n";
 
 void print_path(const char *path, const char sep) {
@@ -83,19 +84,8 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
     }
 
     print_file_separator();
-
-    if (opts.print_path == PATH_PRINT_DEFAULT) {
-        opts.print_path = PATH_PRINT_TOP;
-    } else if (opts.print_path == PATH_PRINT_DEFAULT_EACH_LINE) {
-        opts.print_path = PATH_PRINT_EACH_LINE;
-    }
-
     if (opts.print_path == PATH_PRINT_TOP) {
-        if (opts.print_count) {
-            print_path_count(path, opts.path_sep, matches_len);
-        } else {
-            print_path(path, opts.path_sep);
-        }
+        print_path(path, opts.path_sep);
     }
 
     context_prev_lines = (const char**) ag_calloc(sizeof(char *), (opts.before + 1));
@@ -110,56 +100,59 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 		if(next_relevant) i = next_relevant - buf;
 		else i = search_end;
 		
-        if (cur_match < matches_len && i == matches[cur_match].start) {
-		do_next_match:
-            in_a_match = TRUE;
-			search_end = matches[cur_match].end;
-            /* We found the start of a match */
-            if (opts.context && cur_match > 0 && lines_since_last_match > (opts.before + opts.after + 1)) {
-                fputs("--\n", out_fd);
-            }
-
-            if (lines_since_last_match > 0 && opts.before > 0) {
-                /* TODO: better, but still needs work */
-                /* print the previous line(s) */
-                lines_to_print = lines_since_last_match - (opts.after + 1);
-                if (lines_to_print < 0) {
-                    lines_to_print = 0;
-                } else if ((size_t)lines_to_print > opts.before) {
-                    lines_to_print = opts.before;
-                }
-
-				for (j = lines_to_print; j > 0; --j) {
-                    prev_line = (last_prev_line + opts.before + 1 - j) % (opts.before + 1);
-                    if (context_prev_lines[prev_line] != NULL) {
-                        if (opts.print_path == PATH_PRINT_EACH_LINE) {
-                            print_path(path, ':');
-                        }
-                        print_line_number(line - j, sep);
-						size_t next_line = prev_line + 1;
-						if(next_line == opts.before+1) next_line = 0;
-						fwrite(context_prev_lines[prev_line], 1, context_prev_lines[next_line]-context_prev_lines[prev_line], out_fd);
-                    }
-                }
-            }
-            lines_since_last_match = 0;
-        }
-
-        if (cur_match < matches_len && i == matches[cur_match].end) {
-            /* We found the end of a match. */
-            cur_match++;
-            in_a_match = FALSE;
-			if(cur_match < matches_len) {
-				search_end = matches[cur_match].start;
-				if(search_end == i) goto do_next_match;
+		if JLIKELY(cur_match < matches_len) {
+			if JUNLIKELY(i == matches[cur_match].start) {
+			do_next_match:
+				in_a_match = TRUE;
+				search_end = matches[cur_match].end;
+				/* We found the start of a match */
+				if (opts.context && cur_match > 0 && lines_since_last_match > (opts.before + opts.after + 1)) {
+					fputs("--\n", out_fd);
+				}
+				
+				if (lines_since_last_match > 0 && opts.before > 0) {
+					/* TODO: better, but still needs work */
+					/* print the previous line(s) */
+					lines_to_print = lines_since_last_match - (opts.after + 1);
+					if (lines_to_print < 0) {
+						lines_to_print = 0;
+					} else if ((size_t)lines_to_print > opts.before) {
+						lines_to_print = opts.before;
+					}
+					
+					for (j = lines_to_print; j > 0; --j) {
+						prev_line = (last_prev_line + opts.before + 1 - j) % (opts.before + 1);
+						if (context_prev_lines[prev_line] != NULL) {
+							if (opts.print_path == PATH_PRINT_EACH_LINE) {
+								print_path(path, ':');
+							}
+							print_line_number(line - j, sep);
+							size_t next_line = prev_line + 1;
+							if(next_line == opts.before+1) next_line = 0;
+							fwrite(context_prev_lines[prev_line], 1, context_prev_lines[next_line]-context_prev_lines[prev_line], out_fd);
+						}
+					}
+				}
+				lines_since_last_match = 0;
 			}
-			else search_end = buf_len;
-        }
+			
+			if JUNLIKELY(i == matches[cur_match].end) {
+				/* We found the end of a match. */
+				cur_match++;
+				in_a_match = FALSE;
+				if(cur_match < matches_len) {
+					search_end = matches[cur_match].start;
+					if(search_end == i) goto do_next_match;
+				}
+				else search_end = buf_len;
+			}
+		}
 
         /* We found the end of a line. */
-        if (i == buf_len || buf[i] == '\n') {
+        if JLIKELY(i == buf_len || buf[i] == '\n') {
 			if(opts.before > 0) {
-				if(++last_prev_line == opts.before+1) last_prev_line = 0;
+				if(last_prev_line == opts.before) last_prev_line = 0;
+				else ++last_prev_line;
 				context_prev_lines[last_prev_line] = &buf[i]+1;
 			}
 
@@ -200,7 +193,8 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 						if (printing_a_match && opts.color) {
 							fputs(opts.color_match, out_fd);
 						}
-						for (j = prev_line_offset; j <= i; j++) {
+						j = prev_line_offset;
+						for(;;) {
 							/* close highlight of match term */
 							if (last_printed_match < matches_len && j == matches[last_printed_match].end) {
 								if (opts.color) {
@@ -243,17 +237,35 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 								printing_a_match = TRUE;
 							}
 							/* Don't print the null terminator */
-							if (j < buf_len) {
-								/* if only_matching is set, print only matches and newlines */
-								if (!opts.only_matching || printing_a_match) {
-									if (opts.width == 0 || j - prev_line_offset < opts.width) {
-										fputc(buf[j], out_fd);
+							if(j == i) break;
+
+							/* if only_matching is set, print only matches and newlines */
+							size_t span_end;
+							if(opts.width == 0) span_end = i;
+							else span_end = prev_line_offset + opts.width;
+							
+							if(last_printed_match < matches_len) {
+								if(printing_a_match) {
+									if(matches[last_printed_match].end < span_end) {
+										span_end = matches[last_printed_match].end;
+									}
+								} else {
+									if(matches[last_printed_match].start < span_end) {
+										span_end = matches[last_printed_match].start;
 									}
 								}
 							}
+							
+							if (!opts.only_matching || printing_a_match) {
+								fwrite(buf+j, 1, span_end-j, out_fd);
+							}
+							j = span_end;
+							
 						}
 						if (printing_a_match && opts.color) {
-							fwrite(color_reset, 1, sizeof(color_reset)-1, out_fd);
+							fwrite(color_reset_with_newline, 1, sizeof(color_reset_with_newline)-1, out_fd);
+						} else {
+							fputc('\n', out_fd);
 						}
 					}
 				} else {
@@ -263,21 +275,13 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 					}
 					print_line_number(line, sep);
 
-					for (j = prev_line_offset; j < i; j++) {
-						fputc(buf[j], out_fd);
-					}
+					fwrite(buf+prev_line_offset, 1, i-prev_line_offset, out_fd);
 					fputc('\n', out_fd);
 				}
 			}
 			
-			/* File doesn't end with a newline. Print one so the output is pretty. */
-			if (i == buf_len) {
-				if(buf[buf_len - 1] != '\n' && !opts.search_stream) {
-					fputc('\n', out_fd);
-				}
-				break;
-			}
-
+			if(i == buf_len) break;
+			
 			++i; /* skip the newline */
             prev_line_offset = i;
             line++;

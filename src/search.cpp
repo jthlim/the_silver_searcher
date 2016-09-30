@@ -219,9 +219,9 @@ void search_file(const char *file_full_path) {
     struct stat statbuf;
     int rv = 0;
     FILE *fp = NULL;
-	char stackBuf[2048];
-	char *buf = stackBuf;
-	const size_t MMAP_THRESHOLD = 256*1024;
+	char *buf = nullptr;
+	const size_t STACK_THRESHOLD = 24*1024;
+	const size_t MMAP_THRESHOLD = 512*1024;
 
     fd = open(file_full_path, O_RDONLY);
     if (fd < 0) {
@@ -263,7 +263,8 @@ void search_file(const char *file_full_path) {
 
 	if(f_len < MMAP_THRESHOLD)
 	{
-		if(f_len > sizeof(stackBuf)) buf = (char*) malloc(f_len);
+		if(f_len > STACK_THRESHOLD) buf = (char*) malloc(f_len);
+		else buf = (char*) alloca((f_len+31)&-32);
 		read(fd, buf, f_len);
 	}
 	else
@@ -320,20 +321,18 @@ void search_file(const char *file_full_path) {
 
 cleanup:
 
-    if (buf != stackBuf) {
-		if(f_len < MMAP_THRESHOLD)
-		{
-			free(buf);
-		}
-		else
-		{
-	#ifdef _WIN32
-			UnmapViewOfFile(buf);
-	#else
-			munmap(buf, f_len);
-	#endif
-		}
-    }
+	if(f_len < MMAP_THRESHOLD)
+	{
+		if(f_len > STACK_THRESHOLD) free(buf);
+	}
+	else
+	{
+#ifdef _WIN32
+		UnmapViewOfFile(buf);
+#else
+		munmap(buf, f_len);
+#endif
+	}
     if (fd != -1) {
         close(fd);
     }
