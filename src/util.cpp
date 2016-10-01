@@ -255,15 +255,21 @@ int is_binary(const void *buf, const size_t buf_len) {
     for (i = 0; i < total_bytes; i++) {
         if (DO_UTF8_CHECK[buf_c[i]]) {
             /* UTF-8 detection */
-            if (buf_c[i] >= 192 && buf_c[i] < 224 && i + 1 < total_bytes) {
-                i++;
-                if (buf_c[i] >= 128 && buf_c[i] < 192) {
+            if (192 <= buf_c[i] && buf_c[i] < 224) {
+				i++;
+				if(i >= total_bytes) continue;
+				if (128 <= buf_c[i] && buf_c[i] < 192) {
                     continue;
                 }
-            } else if (buf_c[i] >= 224 && buf_c[i] < 240 && i + 2 < total_bytes) {
-                i++;
-                if (buf_c[i] >= 128 && buf_c[i] < 192 && buf_c[i + 1] > 127 && buf_c[i + 1] < 192) {
-                    i++;
+            } else if (224 <= buf_c[i] && buf_c[i] < 240) {
+				i += 2;
+				if(i >= total_bytes) continue;
+				
+				// This could be one 16-bit check, but the compiler is not
+				// optimizing other code when I write:
+				// if ((*(uint16_t*) &buf_c[i-1]) & 0xc0c0) == 0x8080) {
+                if ((128 <= buf_c[i-1] && buf_c[i-1] < 192)
+					&& 128 <= buf_c[i] && buf_c[i] < 192) {
                     continue;
                 }
             }
