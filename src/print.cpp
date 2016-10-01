@@ -20,7 +20,7 @@ const char color_reset_with_newline[] = "\033[m\033[K\n";
 const char truncate_marker[] = " [...]";
 
 void print_path(const char *path, const char sep) {
-    if (opts.print_path == PATH_PRINT_NOTHING && !opts.vimgrep) {
+    if (opts.print_path_resolved == PATH_PRINT_NOTHING && !opts.vimgrep) {
         return;
     }
     path = normalize_path(path);
@@ -84,7 +84,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
     }
 
     print_file_separator();
-    if (opts.print_path == PATH_PRINT_TOP) {
+    if (opts.print_path_resolved == PATH_PRINT_TOP) {
         print_path(path, opts.path_sep);
     }
 
@@ -123,7 +123,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 					for (j = lines_to_print; j > 0; --j) {
 						prev_line = (last_prev_line + opts.before + 1 - j) % (opts.before + 1);
 						if (context_prev_lines[prev_line] != NULL) {
-							if (opts.print_path == PATH_PRINT_EACH_LINE) {
+							if (opts.print_path_resolved == PATH_PRINT_EACH_LINE) {
 								print_path(path, ':');
 							}
 							print_line_number(line - j, sep);
@@ -159,7 +159,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 			if (lines_since_last_match <= opts.after) {
 				if(lines_since_last_match == 0)
 				{
-					if (opts.print_path == PATH_PRINT_EACH_LINE && !opts.search_stream) {
+					if (opts.print_path_resolved == PATH_PRINT_EACH_LINE && !opts.search_stream) {
 						print_path(path, ':');
 					}
 					if (opts.ackmate) {
@@ -233,7 +233,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 							/* open highlight of match term */
 							if (last_printed_match < matches_len && j == matches[last_printed_match].start) {
 								if (opts.only_matching && printed_match) {
-									if (opts.print_path == PATH_PRINT_EACH_LINE) {
+									if (opts.print_path_resolved == PATH_PRINT_EACH_LINE) {
 										print_path(path, ':');
 									}
 									print_line_number(line, ':');
@@ -273,7 +273,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
 					}
 				} else {
 					/* print context after matching line */
-					if (opts.print_path == PATH_PRINT_EACH_LINE) {
+					if (opts.print_path_resolved == PATH_PRINT_EACH_LINE) {
 						print_path(path, ':');
 					}
 					print_line_number(line, sep);

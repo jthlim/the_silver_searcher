@@ -58,6 +58,7 @@ typedef struct {
     int print_count;
     int print_filename_only;
     int print_path;
+	int print_path_resolved;
     int print_line_numbers;
     int print_long_lines; /* TODO: support this in print.c */
     int passthrough;
