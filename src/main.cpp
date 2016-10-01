@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
 	
 	if(!opts.search_binary_files)
 	{
-//		opts.binary_ignore_pattern = new Javelin::Pattern(JS("\\.(?:bmp|png|jpg|jpeg|jp2|gif|ico|tiff|tga|pdf|psd|docx|xlsx|pptx|zip|gz|tgz|bz2|wav|ppm|pgm|mp3|mp4|o|a|dll|lib|jar)$"), Javelin::Pattern::IGNORE_CASE | Javelin::Pattern::PREFER_NO_SCAN);
+//		opts.binary_ignore_pattern = new Javelin::Pattern(JS("\\.(?:bmp|png|jpg|jpeg|jp2|gif|ico|tiff|tga|pdf|psd|docx|xlsx|pptx|zip|gz|tgz|bz2|wav|ppm|pgm|mp3|mp4|o|a|jar)$"), Javelin::Pattern::IGNORE_CASE | Javelin::Pattern::PREFER_NO_SCAN | Javelin::Pattern::NO_FULL_MATCH);
 		opts.binary_ignore_pattern = new Javelin::Pattern(BINARY_FILENAME_IGNORE_PATTERN, BINARY_FILE_IGNORE_PATTERN_LENGTH);
 	}
 
