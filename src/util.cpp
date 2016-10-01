@@ -268,12 +268,6 @@ int is_binary(const void *buf, const size_t buf_len) {
                 }
             }
             suspicious_bytes++;
-            /* Disk IO is so slow that it's worthwhile to do this calculation after every suspicious byte. */
-            /* This is true even on a 1.6Ghz Atom with an Intel 320 SSD. */
-            /* Read at least 32 bytes before making a decision */
-            if (i >= 32 && suspicious_bytes * 10 > total_bytes) {
-                return 1;
-            }
         }
     }
 	
