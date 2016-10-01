@@ -397,7 +397,7 @@ int filename_filter(const char *path, const struct dirent *dir, void *baton) {
     const ignores *ig = scandir_baton->ig;
 
     while (ig != NULL) {
-        if (strncmp(filename, "./", 2) == 0) {
+		if (filename[0] == '.' && filename[1] == '/') { // strncmp(filename, "./", 2) == 0) {
             filename++;
             filename_len--;
         }
