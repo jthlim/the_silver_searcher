@@ -88,9 +88,9 @@ void search_buf(const char *buf, const size_t buf_len,
 	if (opts.multiline) {
 		while (buf_offset < buf_len &&
 			   opts.pattern->PartialMatch(buf, buf_len, results, buf_offset)) {
-			int offset_vector[2];
-			offset_vector[0] = int(intptr_t(results[0]) - intptr_t(buf));
-			offset_vector[1] = int(intptr_t(results[1]) - intptr_t(buf));
+			size_t offset_vector[2];
+			offset_vector[0] = intptr_t(results[0]) - intptr_t(buf);
+			offset_vector[1] = intptr_t(results[1]) - intptr_t(buf);
 			buf_offset = offset_vector[1];
 			if (offset_vector[0] == offset_vector[1]) {
 				++buf_offset;
@@ -117,9 +117,9 @@ void search_buf(const char *buf, const size_t buf_len,
 			size_t line_offset = 0;
 			while (line_offset < line_len) {
 				if(!opts.pattern->PartialMatch(line, line_len, results, line_offset)) break;
-				int offset_vector[2];
-				offset_vector[0] = int(intptr_t(results[0]) - intptr_t(buf));
-				offset_vector[1] = int(intptr_t(results[1]) - intptr_t(buf));
+				size_t offset_vector[2];
+				offset_vector[0] = size_t(intptr_t(results[0]) - intptr_t(buf));
+				offset_vector[1] = size_t(intptr_t(results[1]) - intptr_t(buf));
 
 				size_t line_to_buf = buf_offset + line_offset;
 				log_debug("Regex match found. File %s, offset %i bytes.", dir_full_path, offset_vector[0]);
@@ -158,6 +158,9 @@ multiline_done:
         if (matches_len > 0) {
             stats.total_file_matches++;
         }
+		if(opts.print_path == PATH_PRINT_NOTHING && opts.print_filename_only) {
+			goto cleanup;
+		}
     }
 
     if (matches_len > 0) {
@@ -193,6 +196,7 @@ multiline_done:
         log_debug("No match in %s", dir_full_path);
     }
 
+cleanup:
     if (matches_size > 0) {
         free(matches);
     }

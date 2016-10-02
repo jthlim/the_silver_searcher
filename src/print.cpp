@@ -76,8 +76,8 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
     size_t last_printed_match = 0;
     char sep = '-';
     size_t i, j;
-    int in_a_match = FALSE;
-    int printing_a_match = FALSE;
+    bool in_a_match = false;
+    bool printing_a_match = false;
 
     if (opts.ackmate || opts.vimgrep) {
         sep = ':';
