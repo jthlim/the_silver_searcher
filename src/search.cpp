@@ -443,7 +443,11 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 	
 	if (!is_directory(path, dir)) {
 		if(opts.file_search_pattern) {
+#ifdef HAVE_DIRENT_DNAMLEN
 			if(opts.file_search_pattern->HasPartialMatch(dir->d_name, dir->d_namlen)) {
+#else
+			if(opts.file_search_pattern->HasPartialMatch(dir->d_name, strlen(dir->d_name))) {
+#endif
 				log_debug("match_files: file_search_regex matched for %s.", dir_full_path);
 				if(opts.match_files) {
 					print_path(dir_full_path, opts.path_sep);
@@ -457,7 +461,11 @@ void process_dirent(struct dirent *dir, scandir_baton_t& scandir_baton, const ch
 		}
 		
 		if(opts.binary_ignore_pattern) {
+#ifdef HAVE_DIRENT_DNAMLEN
 			if(opts.binary_ignore_pattern->HasPartialMatch(dir->d_name, dir->d_namlen)) {
+#else
+			if(opts.binary_ignore_pattern->HasPartialMatch(dir->d_name, strlen(dir->d_name))) {
+#endif
 				goto cleanup;
 			}
 		}
