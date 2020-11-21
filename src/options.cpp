@@ -25,12 +25,12 @@ const char *color_path = "\033[32m";        	/* green */
 /* TODO: try to obey out_fd? */
 void usage(void) {
     printf("\n");
-    printf("Usage: ag [FILE-TYPE] [OPTIONS] PATTERN [PATH]\n\n");
+    printf("Usage: jag [FILE-TYPE] [OPTIONS] PATTERN [PATH]\n\n");
 
     printf("  Recursively search for PATTERN in PATH.\n");
     printf("  Like grep or ack, but faster.\n\n");
 
-    printf("Example:\n  ag -i foo /bar/\n\n");
+    printf("Example:\n  jag -i foo /bar/\n\n");
 
     printf("\
 Output Options:\n\
@@ -116,7 +116,7 @@ The search can be restricted to certain types of files. Example:\n\
   - Searches for 'needle' in files with suffix .htm, .html, .shtml or .xhtml.\n\
 \n\
 For a list of supported file types run:\n\
-  ag --list-file-types\n\n");
+  jag --list-file-types\n\n");
 }
 
 void print_version(void) {

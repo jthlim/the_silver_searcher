@@ -1,0 +1,771 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		837152382563EEA2004E150E /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 837152222563EEA2004E150E /* log.cpp */; };
+		837152392563EEA2004E150E /* search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 837152242563EEA2004E150E /* search.cpp */; };
+		8371523A2563EEA2004E150E /* ignore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 837152282563EEA2004E150E /* ignore.cpp */; };
+		8371523B2563EEA2004E150E /* lang.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8371522B2563EEA2004E150E /* lang.cpp */; };
+		8371523C2563EEA2004E150E /* decompress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8371522C2563EEA2004E150E /* decompress.cpp */; };
+		8371523D2563EEA2004E150E /* data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8371522D2563EEA2004E150E /* data.cpp */; };
+		8371523F2563EEA2004E150E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8371522F2563EEA2004E150E /* main.cpp */; };
+		837152402563EEA2004E150E /* print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 837152312563EEA2004E150E /* print.cpp */; };
+		837152412563EEA2004E150E /* options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 837152322563EEA2004E150E /* options.cpp */; };
+		837152422563EEA2004E150E /* scandir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 837152352563EEA2004E150E /* scandir.cpp */; };
+		837152432563EEA2004E150E /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 837152372563EEA2004E150E /* util.cpp */; };
+		837152542563F061004E150E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 837152532563F061004E150E /* libz.tbd */; };
+		837152562563F072004E150E /* libJavelinPattern.macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 837151F42563EE5A004E150E /* libJavelinPattern.macOS.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		837151E52563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83F21F7412CB614600768A5A;
+			remoteInfo = "iOS Static Library";
+		};
+		837151E72563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83ABF22921D65B050048214E;
+			remoteInfo = "iOS Assembler Static Library";
+		};
+		837151E92563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8399802A1F93428E009EEFE9;
+			remoteInfo = "iOS Pattern Static Library";
+		};
+		837151EB2563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 837F0B241588BF2C00F4808F;
+			remoteInfo = "iOS Unit Tests";
+		};
+		837151ED2563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 831B2617220A8F3100E79B19;
+			remoteInfo = "iOS PatternCompiler";
+		};
+		837151EF2563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83F21F7512CB614600768A5A;
+			remoteInfo = "macOS Static Library";
+		};
+		837151F12563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83ABF24221D65D690048214E;
+			remoteInfo = "macOS Assembler Static Library";
+		};
+		837151F32563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8361FEA61CB198810040AF94;
+			remoteInfo = "macOS Pattern Static Library";
+		};
+		837151F52563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8325B5BA22A2E441008C9DED;
+			remoteInfo = "macOS Unit Tests";
+		};
+		837151F72563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83D8DBAB1C06EABF0088C975;
+			remoteInfo = "macOS PatternCompiler";
+		};
+		837151F92563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 839FB2DD17048157009F8AA7;
+			remoteInfo = FbxConvert;
+		};
+		837151FB2563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8383ED7A171ED21400B0A282;
+			remoteInfo = FbxAnimConvert;
+		};
+		837151FD2563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83BD15FA19C3D7020042EAFD;
+			remoteInfo = SceneEditor;
+		};
+		837151FF2563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8358900A2192754800348E52;
+			remoteInfo = jasm;
+		};
+		837152012563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 831CA75B219D81480041ADF7;
+			remoteInfo = "jasmTest-x64";
+		};
+		837152032563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83C29A8721C98B1F00C2FDB3;
+			remoteInfo = "jasmTest-arm64";
+		};
+		837152052563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83002DB61CB22F5E005BF043;
+			remoteInfo = jrpc;
+		};
+		837152072563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 83D8DB991C06EA190088C975;
+			remoteInfo = UnicodeDataParser;
+		};
+		837152092563EE5A004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8325B63C22A3099B008C9DED;
+			remoteInfo = Pattern;
+		};
+		8371524B2563EF8E004E150E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 8361FD311CB198810040AF94;
+			remoteInfo = "macOS Pattern Static Library";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		837151C02563EE3D004E150E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		835898CB2568BB5E0072E208 /* jag.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = jag.entitlements; sourceTree = "<group>"; };
+		837151C22563EE3D004E150E /* jag */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = jag; sourceTree = BUILT_PRODUCTS_DIR; };
+		837151CE2563EE5A004E150E /* Javelin.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Javelin.xcodeproj; path = ../../../Personal/Javelin/Projects/Javelin.xcodeproj; sourceTree = "<group>"; };
+		837152212563EEA2004E150E /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = ../../src/util.h; sourceTree = "<group>"; };
+		837152222563EEA2004E150E /* log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = log.cpp; path = ../../src/log.cpp; sourceTree = "<group>"; };
+		837152232563EEA2004E150E /* scandir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scandir.h; path = ../../src/scandir.h; sourceTree = "<group>"; };
+		837152242563EEA2004E150E /* search.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = search.cpp; path = ../../src/search.cpp; sourceTree = "<group>"; };
+		837152252563EEA2004E150E /* lang.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lang.h; path = ../../src/lang.h; sourceTree = "<group>"; };
+		837152262563EEA2004E150E /* log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = log.h; path = ../../src/log.h; sourceTree = "<group>"; };
+		837152272563EEA2004E150E /* options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = options.h; path = ../../src/options.h; sourceTree = "<group>"; };
+		837152282563EEA2004E150E /* ignore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ignore.cpp; path = ../../src/ignore.cpp; sourceTree = "<group>"; };
+		837152292563EEA2004E150E /* ignore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ignore.h; path = ../../src/ignore.h; sourceTree = "<group>"; };
+		8371522A2563EEA2004E150E /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../src/config.h; sourceTree = "<group>"; };
+		8371522B2563EEA2004E150E /* lang.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lang.cpp; path = ../../src/lang.cpp; sourceTree = "<group>"; };
+		8371522C2563EEA2004E150E /* decompress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = decompress.cpp; path = ../../src/decompress.cpp; sourceTree = "<group>"; };
+		8371522D2563EEA2004E150E /* data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data.cpp; path = ../../src/data.cpp; sourceTree = "<group>"; };
+		8371522E2563EEA2004E150E /* print_w32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = print_w32.cpp; path = ../../src/print_w32.cpp; sourceTree = "<group>"; };
+		8371522F2563EEA2004E150E /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../src/main.cpp; sourceTree = "<group>"; };
+		837152302563EEA2004E150E /* decompress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = decompress.h; path = ../../src/decompress.h; sourceTree = "<group>"; };
+		837152312563EEA2004E150E /* print.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = print.cpp; path = ../../src/print.cpp; sourceTree = "<group>"; };
+		837152322563EEA2004E150E /* options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = options.cpp; path = ../../src/options.cpp; sourceTree = "<group>"; };
+		837152332563EEA2004E150E /* data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = data.h; path = ../../src/data.h; sourceTree = "<group>"; };
+		837152342563EEA2004E150E /* print.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = print.h; path = ../../src/print.h; sourceTree = "<group>"; };
+		837152352563EEA2004E150E /* scandir.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scandir.cpp; path = ../../src/scandir.cpp; sourceTree = "<group>"; };
+		837152362563EEA2004E150E /* search.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = search.h; path = ../../src/search.h; sourceTree = "<group>"; };
+		837152372563EEA2004E150E /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = ../../src/util.cpp; sourceTree = "<group>"; };
+		837152532563F061004E150E /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		837151BF2563EE3D004E150E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				837152562563F072004E150E /* libJavelinPattern.macOS.a in Frameworks */,
+				837152542563F061004E150E /* libz.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		837151B92563EE3D004E150E = {
+			isa = PBXGroup;
+			children = (
+				837151CE2563EE5A004E150E /* Javelin.xcodeproj */,
+				837151C42563EE3D004E150E /* jag */,
+				837151C32563EE3D004E150E /* Products */,
+				837152522563F061004E150E /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		837151C32563EE3D004E150E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				837151C22563EE3D004E150E /* jag */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		837151C42563EE3D004E150E /* jag */ = {
+			isa = PBXGroup;
+			children = (
+				835898CB2568BB5E0072E208 /* jag.entitlements */,
+				8371522A2563EEA2004E150E /* config.h */,
+				8371522D2563EEA2004E150E /* data.cpp */,
+				837152332563EEA2004E150E /* data.h */,
+				8371522C2563EEA2004E150E /* decompress.cpp */,
+				837152302563EEA2004E150E /* decompress.h */,
+				837152282563EEA2004E150E /* ignore.cpp */,
+				837152292563EEA2004E150E /* ignore.h */,
+				8371522B2563EEA2004E150E /* lang.cpp */,
+				837152252563EEA2004E150E /* lang.h */,
+				837152222563EEA2004E150E /* log.cpp */,
+				837152262563EEA2004E150E /* log.h */,
+				8371522F2563EEA2004E150E /* main.cpp */,
+				837152322563EEA2004E150E /* options.cpp */,
+				837152272563EEA2004E150E /* options.h */,
+				8371522E2563EEA2004E150E /* print_w32.cpp */,
+				837152312563EEA2004E150E /* print.cpp */,
+				837152342563EEA2004E150E /* print.h */,
+				837152352563EEA2004E150E /* scandir.cpp */,
+				837152232563EEA2004E150E /* scandir.h */,
+				837152242563EEA2004E150E /* search.cpp */,
+				837152362563EEA2004E150E /* search.h */,
+				837152372563EEA2004E150E /* util.cpp */,
+				837152212563EEA2004E150E /* util.h */,
+			);
+			path = jag;
+			sourceTree = "<group>";
+		};
+		837151CF2563EE5A004E150E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				837151E62563EE5A004E150E /* libJavelin.iOS.a */,
+				837151E82563EE5A004E150E /* libJavelinAssembler.iOS.a */,
+				837151EA2563EE5A004E150E /* libJavelinPattern.iOS.a */,
+				837151EC2563EE5A004E150E /* iOS Unit Tests.app */,
+				837151EE2563EE5A004E150E /* PatternCompiler iOS.app */,
+				837151F02563EE5A004E150E /* libJavelin.macOS.a */,
+				837151F22563EE5A004E150E /* libJavelinAssembler.macOS.a */,
+				837151F42563EE5A004E150E /* libJavelinPattern.macOS.a */,
+				837151F62563EE5A004E150E /* macOS Unit Tests */,
+				837151F82563EE5A004E150E /* PatternCompiler */,
+				837151FA2563EE5A004E150E /* FbxConvert */,
+				837151FC2563EE5A004E150E /* FbxAnimConvert */,
+				837151FE2563EE5A004E150E /* SceneEditor.app */,
+				837152002563EE5A004E150E /* jasm */,
+				837152022563EE5A004E150E /* jasmTest-x64 */,
+				837152042563EE5A004E150E /* jasmTest-arm64.app */,
+				837152062563EE5A004E150E /* jrpc */,
+				837152082563EE5A004E150E /* UnicodeDataParser */,
+				8371520A2563EE5A004E150E /* Pattern */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		837152522563F061004E150E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				837152532563F061004E150E /* libz.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		837151C12563EE3D004E150E /* jag */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 837151C92563EE3D004E150E /* Build configuration list for PBXNativeTarget "jag" */;
+			buildPhases = (
+				837151BE2563EE3D004E150E /* Sources */,
+				837151BF2563EE3D004E150E /* Frameworks */,
+				837151C02563EE3D004E150E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8371524C2563EF8E004E150E /* PBXTargetDependency */,
+			);
+			name = jag;
+			productName = jag;
+			productReference = 837151C22563EE3D004E150E /* jag */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		837151BA2563EE3D004E150E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1220;
+				TargetAttributes = {
+					837151C12563EE3D004E150E = {
+						CreatedOnToolsVersion = 12.2;
+					};
+				};
+			};
+			buildConfigurationList = 837151BD2563EE3D004E150E /* Build configuration list for PBXProject "jag" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 837151B92563EE3D004E150E;
+			productRefGroup = 837151C32563EE3D004E150E /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 837151CF2563EE5A004E150E /* Products */;
+					ProjectRef = 837151CE2563EE5A004E150E /* Javelin.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				837151C12563EE3D004E150E /* jag */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		837151E62563EE5A004E150E /* libJavelin.iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJavelin.iOS.a;
+			remoteRef = 837151E52563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151E82563EE5A004E150E /* libJavelinAssembler.iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJavelinAssembler.iOS.a;
+			remoteRef = 837151E72563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151EA2563EE5A004E150E /* libJavelinPattern.iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJavelinPattern.iOS.a;
+			remoteRef = 837151E92563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151EC2563EE5A004E150E /* iOS Unit Tests.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = "iOS Unit Tests.app";
+			remoteRef = 837151EB2563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151EE2563EE5A004E150E /* PatternCompiler iOS.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			name = "PatternCompiler iOS.app";
+			path = PatternCompiler.app;
+			remoteRef = 837151ED2563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151F02563EE5A004E150E /* libJavelin.macOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJavelin.macOS.a;
+			remoteRef = 837151EF2563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151F22563EE5A004E150E /* libJavelinAssembler.macOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJavelinAssembler.macOS.a;
+			remoteRef = 837151F12563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151F42563EE5A004E150E /* libJavelinPattern.macOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJavelinPattern.macOS.a;
+			remoteRef = 837151F32563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151F62563EE5A004E150E /* macOS Unit Tests */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "macOS Unit Tests";
+			remoteRef = 837151F52563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151F82563EE5A004E150E /* PatternCompiler */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = PatternCompiler;
+			remoteRef = 837151F72563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151FA2563EE5A004E150E /* FbxConvert */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = FbxConvert;
+			remoteRef = 837151F92563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151FC2563EE5A004E150E /* FbxAnimConvert */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = FbxAnimConvert;
+			remoteRef = 837151FB2563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837151FE2563EE5A004E150E /* SceneEditor.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = SceneEditor.app;
+			remoteRef = 837151FD2563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837152002563EE5A004E150E /* jasm */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = jasm;
+			remoteRef = 837151FF2563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837152022563EE5A004E150E /* jasmTest-x64 */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "jasmTest-x64";
+			remoteRef = 837152012563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837152042563EE5A004E150E /* jasmTest-arm64.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = "jasmTest-arm64.app";
+			remoteRef = 837152032563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837152062563EE5A004E150E /* jrpc */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = jrpc;
+			remoteRef = 837152052563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		837152082563EE5A004E150E /* UnicodeDataParser */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = UnicodeDataParser;
+			remoteRef = 837152072563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8371520A2563EE5A004E150E /* Pattern */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = Pattern;
+			remoteRef = 837152092563EE5A004E150E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		837151BE2563EE3D004E150E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				837152382563EEA2004E150E /* log.cpp in Sources */,
+				8371523C2563EEA2004E150E /* decompress.cpp in Sources */,
+				837152392563EEA2004E150E /* search.cpp in Sources */,
+				8371523A2563EEA2004E150E /* ignore.cpp in Sources */,
+				837152422563EEA2004E150E /* scandir.cpp in Sources */,
+				8371523B2563EEA2004E150E /* lang.cpp in Sources */,
+				837152402563EEA2004E150E /* print.cpp in Sources */,
+				837152412563EEA2004E150E /* options.cpp in Sources */,
+				8371523D2563EEA2004E150E /* data.cpp in Sources */,
+				8371523F2563EEA2004E150E /* main.cpp in Sources */,
+				837152432563EEA2004E150E /* util.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8371524C2563EF8E004E150E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "macOS Pattern Static Library";
+			targetProxy = 8371524B2563EF8E004E150E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		837151C72563EE3D004E150E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"JBUILDCONFIG_DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /Users/jtlim/Source/Personal;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		837151C82563EE3D004E150E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "JBUILDCONFIG_RELEASE=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /Users/jtlim/Source/Personal;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		837151CA2563EE3D004E150E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = jag/jag.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 88C93X98PT;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = au.com.lim.jag;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Debug;
+		};
+		837151CB2563EE3D004E150E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = jag/jag.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 88C93X98PT;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = au.com.lim.jag;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Release;
+		};
+		8371524E2563EFBE004E150E /* Final */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "JBUILDCONFIG_FINAL=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /Users/jtlim/Source/Personal;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Final;
+		};
+		8371524F2563EFBE004E150E /* Final */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = jag/jag.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 88C93X98PT;
+				ENABLE_HARDENED_RUNTIME = YES;
+				LD_GENERATE_MAP_FILE = YES;
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
+				PRODUCT_BUNDLE_IDENTIFIER = au.com.lim.jag;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Final;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		837151BD2563EE3D004E150E /* Build configuration list for PBXProject "jag" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				837151C72563EE3D004E150E /* Debug */,
+				837151C82563EE3D004E150E /* Release */,
+				8371524E2563EFBE004E150E /* Final */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		837151C92563EE3D004E150E /* Build configuration list for PBXNativeTarget "jag" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				837151CA2563EE3D004E150E /* Debug */,
+				837151CB2563EE3D004E150E /* Release */,
+				8371524F2563EFBE004E150E /* Final */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 837151BA2563EE3D004E150E /* Project object */;
+}
